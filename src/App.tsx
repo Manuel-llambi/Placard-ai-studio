@@ -125,10 +125,6 @@ export default function App() {
           {currentStep === 'welcome' && (
             <WelcomeScreen
               onStart={() => setCurrentStep('step1_garment')}
-              onTrySampleDirectly={() => {
-                setSelectedGarment(SAMPLE_GARMENTS[0]);
-                setCurrentStep('step1_garment');
-              }}
             />
           )}
 

@@ -1,17 +1,16 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
   Camera,
-  Upload,
+  Image as ImageIcon,
   ShieldCheck,
   CheckCircle2,
   Sparkles,
   Check,
   X,
-  RefreshCw,
-  Video,
 } from 'lucide-react';
 import { Garment, ReferencePhoto } from '../types';
 import { DEMO_REFERENCE_PHOTO, GUIDE_PHOTOS } from '../data/samples';
+import { BodyPhotoGuideModal } from './BodyPhotoGuideModal';
 
 interface Step2ReferenceProps {
   selectedGarment: Garment;
@@ -27,9 +26,11 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   onGenerate,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
 
   // Auto-select demo photo if none selected initially, but allow full customization
   useEffect(() => {
@@ -68,8 +69,8 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         videoRef.current.play();
       }
     } catch (err) {
-      console.warn('Camera access denied or unavailable, using demo photo', err);
-      setCameraError('Permiso de cámara no concedido. Podés subir una foto o usar la de prueba.');
+      console.warn('Camera access denied or unavailable, falling back to input', err);
+      cameraInputRef.current?.click();
     }
   };
 
@@ -107,6 +108,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto px-5 pt-2 pb-8 flex flex-col min-h-[calc(100vh-60px)]">
+      {/* Hidden Inputs for Gallery & Direct Camera Capture */}
       <input
         ref={fileInputRef}
         type="file"
@@ -114,11 +116,19 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         className="hidden"
         onChange={handleFileUpload}
       />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="hidden"
+        onChange={handleFileUpload}
+      />
 
       {/* Step Indicator & Progress */}
       <div className="mb-3">
         <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-[#75695E] uppercase mb-1.5">
-          <span>Paso 2 de 2 • Finalizando</span>
+          <span>Paso 2 de 2 • Tu cuerpo</span>
           <span className="font-sans text-[#7A4655]">100%</span>
         </div>
         <div className="w-full h-1 bg-[#ECE4DA] rounded-full overflow-hidden">
@@ -154,123 +164,152 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           Ahora, tu foto de referencia
         </h2>
         <p className="text-[13.5px] text-[#75695E] mt-1 leading-relaxed">
-          Una foto de cuerpo entero con ropa neutra o entallada. Se procesa de forma totalmente privada y segura.
+          Una foto de cuerpo entero para adaptar la prenda a tu silueta real. Podés tomarte una foto ahora o subir una de tu galería.
         </p>
       </div>
 
-      {/* Silhouette & Alignment Viewfinder Card */}
+      {/* Interactive Body Capture & Upload Card (Same Component Layout & Background as Step 1) */}
       <div
-        id="viewfinder-silhouette-card"
-        className="relative bg-[#ECE4DA] rounded-[20px] h-[300px] sm:h-[320px] mb-3 overflow-hidden flex flex-col items-center justify-center border border-[#DCD2C4]/60 shadow-xs"
+        id="body-capture-card"
+        className="bg-[#ECE4DA] rounded-[20px] p-4 sm:p-5 mb-5 border border-transparent shadow-[0_1px_3px_rgba(43,36,32,0.06)] text-center flex flex-col items-center relative overflow-hidden transition-all"
       >
         {isCameraActive ? (
-          <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black">
-            <video
-              ref={videoRef}
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-            />
-            {/* Overlay Guide Dotted Lines */}
-            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-              <div className="w-44 h-64 border-2 border-dashed border-white/60 rounded-full opacity-70" />
+          /* Live Camera View within the Card */
+          <div className="w-full flex flex-col items-center animate-in fade-in duration-200">
+            <div className="relative w-full aspect-[3/4] max-h-[340px] rounded-[16px] overflow-hidden bg-black mb-3">
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                <div className="w-44 h-64 border-2 border-dashed border-white/70 rounded-full opacity-80" />
+              </div>
             </div>
 
-            {/* Live Camera Controls */}
-            <div className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-4 z-10 px-4">
+            <div className="w-full flex items-center gap-2">
               <button
-                id="btn-cancel-camera"
                 onClick={stopCamera}
-                className="px-4 py-2 rounded-full bg-black/60 text-white text-[12px] font-medium backdrop-blur-md"
+                className="py-2.5 px-4 rounded-[12px] bg-[#FAF7F2] text-[#75695E] text-[13px] font-medium border border-[#DCD2C4]"
               >
                 Cancelar
               </button>
               <button
-                id="btn-capture-snapshot"
                 onClick={captureCameraSnapshot}
-                className="w-14 h-14 rounded-full bg-white border-4 border-[#7A4655] flex items-center justify-center text-[#7A4655] shadow-lg active:scale-95 transition-all"
+                className="flex-1 py-3 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#693846] shadow-sm active:scale-95 transition-all"
               >
-                <Camera className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        ) : referencePhoto ? (
-          <div className="absolute inset-0 w-full h-full">
-            <img
-              src={referencePhoto.imageUrl}
-              alt="Foto de referencia"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
-
-            {/* Status chip over image */}
-            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md text-white text-[11px] font-medium flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#8C9B7E]" />
-              <span>{referencePhoto.isDemo ? 'Foto Demo de Camila' : 'Tu foto seleccionada'}</span>
-            </div>
-
-            {/* Actions over preview */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-2">
-              <button
-                id="btn-retake-photo"
-                onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-sm text-[#2B2420] text-[12px] font-medium hover:bg-white flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-              >
-                <RefreshCw className="w-3.5 h-3.5 text-[#75695E]" />
-                <span>Cambiar</span>
+                <Camera className="w-4 h-4" />
+                <span>Capturar foto</span>
               </button>
             </div>
           </div>
         ) : (
+          /* Standard Card View */
           <>
-            {/* SVG Silhouette Outline (Stylized body wireframe) */}
-            <svg
-              className="w-32 h-44 text-[#75695E]/40"
-              viewBox="0 0 100 160"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="3 3"
-            >
-              {/* Head */}
-              <circle cx="50" cy="22" r="14" />
-              {/* Neck & Shoulders */}
-              <path d="M44 36v6c0 2-4 4-8 6l-14 8c-3 2-4 5-3 8l5 24c1 3 3 5 6 4l6-3v67h18v-45h4v45h18V85l6 3c3 1 5-1 6-4l5-24c1-3 0-6-3-8l-14-8c-4-2-8-4-8-6v-6" />
-            </svg>
-
-            {/* Alignment Text */}
-            <div className="mt-2 text-[10px] tracking-[0.18em] font-semibold text-[#75695E] uppercase">
-              ALINEÁ TU CUERPO COMPLETO
+            <div className="w-13 h-13 rounded-full bg-[#FAF7F2] flex items-center justify-center text-[#7A4655] shadow-xs mb-2.5">
+              <Camera className="w-6 h-6 stroke-[1.8]" />
             </div>
 
-            {/* Floating Action Buttons */}
-            <div className="absolute bottom-4 left-0 right-0 px-6 flex items-center justify-between">
+            <h3 className="font-sans font-semibold text-[17px] text-[#2B2420]">
+              Capturá tu foto de cuerpo
+            </h3>
+            <p className="text-[13px] text-[#75695E] mt-1 mb-2 leading-normal max-w-[290px]">
+              Nuestra IA adaptará la prenda a tu silueta real, respetando tus proporciones.
+            </p>
+
+            {/* Direct Trigger to Open Guide Modal */}
+            <button
+              id="btn-open-body-tips"
+              onClick={() => setIsGuideModalOpen(true)}
+              className="inline-flex items-center gap-1 text-[12px] text-[#7A4655] font-semibold hover:underline mb-4 transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#7A4655]" />
+              <span>¿Cómo sacar una buena foto? Ver indicaciones</span>
+            </button>
+
+            {/* Main Action Buttons */}
+            <div className="w-full space-y-2.5">
               <button
+                id="btn-take-photo-body"
+                onClick={startLiveCamera}
+                className="w-full py-3 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#693846] active:scale-[0.98] transition-all shadow-sm"
+              >
+                <Camera className="w-4 h-4" />
+                <span>Tomar foto a mi cuerpo</span>
+              </button>
+
+              <button
+                id="btn-upload-gallery-body"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-10 h-10 rounded-full bg-[#FAF7F2] border border-[#DCD2C4] text-[#75695E] flex items-center justify-center hover:bg-white shadow-xs active:scale-95 transition-all"
-                title="Subir archivo"
+                className="w-full py-2.5 px-4 rounded-[14px] bg-[#FAF7F2] text-[#2B2420] border border-[#DCD2C4] font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
               >
-                <Upload className="w-4 h-4" />
+                <ImageIcon className="w-4 h-4 text-[#75695E]" />
+                <span>Subir de mi galería</span>
               </button>
+            </div>
 
-              <button
-                onClick={() => {
-                  onSelectReferencePhoto(DEMO_REFERENCE_PHOTO);
-                }}
-                className="w-14 h-14 rounded-full bg-[#7A4655] text-white flex items-center justify-center shadow-md hover:bg-[#693846] active:scale-95 transition-all"
-                title="Tomar foto"
-              >
-                <Camera className="w-6 h-6 stroke-[2]" />
-              </button>
+            {/* Synthesized Visual Guidance inside the Card */}
+            <div
+              id="synthesized-body-guidance"
+              className="w-full mt-3.5 pt-3 border-t border-[#DCD2C4]/70 text-left"
+            >
+              <div className="flex items-center justify-between mb-2 px-0.5">
+                <span className="text-[10.5px] font-semibold text-[#75695E] uppercase tracking-wider">
+                  Recomendaciones para tu foto:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsGuideModalOpen(true)}
+                  className="text-[11px] font-medium text-[#7A4655] hover:underline"
+                >
+                  Ver más detalles
+                </button>
+              </div>
 
-              <button
-                onClick={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
-                className="px-3 py-1.5 rounded-full bg-[#FAF7F2] border border-[#DCD2C4] text-[#2B2420] text-[12px] font-medium hover:bg-white shadow-xs flex items-center gap-1 active:scale-95 transition-all"
-                title="Usar foto demo"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#AD8A56]" />
-                <span>Demo</span>
-              </button>
+              <div className="grid grid-cols-2 gap-2 text-left">
+                {/* Así sí */}
+                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
+                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
+                    <img
+                      src={GUIDE_PHOTOS.asiSi.url}
+                      alt="Así sí"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#8C9B7E] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      <span>Así sí</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
+                    De frente y cuerpo entero
+                  </p>
+                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
+                    Luz suave y ropa al cuerpo
+                  </span>
+                </div>
+
+                {/* Así no */}
+                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
+                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
+                    <img
+                      src={GUIDE_PHOTOS.asiNo.url}
+                      alt="Así no"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#A85A46] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
+                      <X className="w-2.5 h-2.5 stroke-[3]" />
+                      <span>Así no</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
+                    En espejo o cortada
+                  </p>
+                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
+                    Celular tapando o contraluz
+                  </span>
+                </div>
+              </div>
             </div>
           </>
         )}
@@ -282,82 +321,29 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         </p>
       )}
 
-      {/* Buttons row below viewfinder */}
-      <div className="grid grid-cols-2 gap-2.5 mb-4">
-        <button
-          id="btn-live-camera"
-          onClick={startLiveCamera}
-          className="py-2.5 px-3 rounded-[12px] bg-[#ECE4DA] text-[#2B2420] text-[13px] font-medium border border-[#DCD2C4]/60 hover:bg-[#E4DACD] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-        >
-          <Video className="w-4 h-4 text-[#75695E]" />
-          <span>Cámara en vivo</span>
-        </button>
-
-        <button
-          id="btn-upload-reference"
-          onClick={() => fileInputRef.current?.click()}
-          className="py-2.5 px-3 rounded-[12px] bg-[#ECE4DA] text-[#2B2420] text-[13px] font-medium border border-[#DCD2C4]/60 hover:bg-[#E4DACD] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-        >
-          <Upload className="w-4 h-4 text-[#75695E]" />
-          <span>Subir archivo</span>
-        </button>
-      </div>
-
-      {/* Comparative Guidance Cards: Así sí vs Así no */}
-      <div className="grid grid-cols-2 gap-2.5 mb-4">
-        {/* Así sí */}
-        <div className="bg-[#FAF7F2] rounded-[14px] p-2.5 border border-[#DCD2C4]/60 shadow-xs flex flex-col">
-          <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[#8C9B7E] mb-2">
-            <div className="w-4 h-4 rounded-full bg-[#8C9B7E]/20 flex items-center justify-center">
-              <Check className="w-2.5 h-2.5 stroke-[3] text-[#8C9B7E]" />
-            </div>
-            <span>Así sí</span>
-          </div>
-          <div className="w-full aspect-[4/3] rounded-[10px] overflow-hidden bg-[#ECE4DA] mb-2 relative">
-            <img
-              src={GUIDE_PHOTOS.asiSi.url}
-              alt={GUIDE_PHOTOS.asiSi.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-[11px] text-[#75695E] leading-snug">
-            {GUIDE_PHOTOS.asiSi.description}
-          </p>
+      {/* Fallback Option to Use Demo Photo if desired */}
+      {!referencePhoto?.isDemo && (
+        <div className="text-center mb-3">
+          <button
+            onClick={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
+            className="text-[12px] text-[#75695E] hover:text-[#2B2420] hover:underline"
+          >
+            ¿Querés probar rápido? Podés usar la foto de prueba de Camila
+          </button>
         </div>
+      )}
 
-        {/* Así no */}
-        <div className="bg-[#FAF7F2] rounded-[14px] p-2.5 border border-[#DCD2C4]/60 shadow-xs flex flex-col">
-          <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[#A85A46] mb-2">
-            <div className="w-4 h-4 rounded-full bg-[#A85A46]/20 flex items-center justify-center">
-              <X className="w-2.5 h-2.5 stroke-[3] text-[#A85A46]" />
-            </div>
-            <span>Así no</span>
-          </div>
-          <div className="w-full aspect-[4/3] rounded-[10px] overflow-hidden bg-[#ECE4DA] mb-2 relative">
-            <img
-              src={GUIDE_PHOTOS.asiNo.url}
-              alt={GUIDE_PHOTOS.asiNo.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <p className="text-[11px] text-[#75695E] leading-snug">
-            {GUIDE_PHOTOS.asiNo.description}
-          </p>
-        </div>
-      </div>
-
-      {/* Explicit Privacy Banner (PRD F3 & Section 8 requirement) */}
+      {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
       <div className="bg-[#D3DAC7]/30 border border-[#8C9B7E]/40 rounded-[14px] p-3 flex items-start gap-2.5 mb-5">
         <div className="w-6 h-6 rounded-full bg-[#8C9B7E]/20 flex items-center justify-center text-[#8C9B7E] shrink-0 mt-0.5">
           <ShieldCheck className="w-3.5 h-3.5" />
         </div>
         <p className="text-[12px] text-[#2B2420] leading-snug">
-          <span className="font-semibold text-[#2B2420]">Privacidad garantizada:</span>{' '}
-          Tus fotos son 100% privadas y nunca se usan para entrenar inteligencias artificiales de terceros.
+          Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
         </p>
       </div>
 
-      {/* Primary CTA: Generar mi prueba virtual */}
+      {/* Primary CTA: Ver cómo te queda */}
       <div className="mt-auto">
         <button
           id="btn-generate-vton"
@@ -366,12 +352,15 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           className="w-full py-3.5 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-[#693846] active:scale-[0.98] transition-all shadow-sm group"
         >
           <Sparkles className="w-4 h-4 text-[#FAF7F2] group-hover:rotate-12 transition-transform" />
-          <span>Generar mi prueba virtual</span>
+          <span>Ver cómo te queda</span>
         </button>
-        <span className="text-[11.5px] text-[#75695E] text-center block mt-2">
-          Tiempo estimado: 8-12 segundos
-        </span>
       </div>
+
+      {/* Body Photo Guide Modal */}
+      <BodyPhotoGuideModal
+        isOpen={isGuideModalOpen}
+        onClose={() => setIsGuideModalOpen(false)}
+      />
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Maximize2,
   Heart,
   Check,
   ArrowRight,
   Share2,
   CheckCircle,
+  Pencil,
 } from 'lucide-react';
 import { VtonResult } from '../types';
 import { CompareModal } from './CompareModal';
@@ -25,6 +25,8 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   const [isFavorite, setIsFavorite] = useState(result.isFavorite);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [lookTitle, setLookTitle] = useState('Look #01');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -43,22 +45,11 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
   return (
     <div className="w-full max-w-md mx-auto px-5 pt-2 pb-10 flex flex-col min-h-[calc(100vh-60px)]">
-      {/* VTON Ready Pill Badge */}
-      <div className="flex justify-center mb-2.5">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#D3DAC7] text-[#2B2420] text-[11px] font-semibold tracking-wide uppercase">
-          <Sparkles className="w-3.5 h-3.5 text-[#7A4655]" />
-          <span>VTON READY · CALCE {result.fitPercentage}%</span>
-        </div>
-      </div>
-
-      {/* Screen Title & Subtitle */}
+      {/* Screen Title */}
       <div className="text-center mb-4">
         <h2 className="font-serif text-[27px] font-semibold text-[#2B2420] tracking-tight leading-snug">
           ¡Tu primer look está listo!
         </h2>
-        <p className="text-[13.5px] text-[#75695E] mt-1 leading-normal">
-          Previsualización con tu silueta y caída orgánica
-        </p>
       </div>
 
       {/* Hero Card with Virtual Try-On Image */}
@@ -103,12 +94,6 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
           <Maximize2 className="w-4 h-4" />
         </button>
 
-        {/* Bottom-Left: AI Styling Pill */}
-        <div className="absolute bottom-3.5 left-3.5 px-3 py-1 rounded-full bg-[#FAF7F2]/90 backdrop-blur-md text-[#2B2420] text-[11px] font-medium shadow-xs flex items-center gap-1.5">
-          <span className="text-[10px] text-[#7A4655]">‹</span>
-          <span>Estilismo generado por IA</span>
-        </div>
-
         {/* Bottom-Right: Favorite Heart Button */}
         <div className="absolute bottom-3.5 right-3.5 flex items-center gap-2">
           <button
@@ -146,14 +131,48 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
       {/* Look Metadata & Description */}
       <div className="mb-5 px-1">
-        <div className="flex items-center justify-between gap-2">
-          <h3 className="font-serif text-[18px] sm:text-[19px] font-medium text-[#2B2420]">
-            {result.lookTitle}
-          </h3>
-          <span className="shrink-0 px-2.5 py-0.5 rounded-[8px] bg-[#ECE4DA] text-[#2B2420] text-[11px] font-medium border border-[#DCD2C4]/70 flex items-center gap-1">
-            <Check className="w-2.5 h-2.5 text-[#8C9B7E]" />
-            <span>{result.size}</span>
-          </span>
+        <div className="flex items-center gap-2">
+          {isEditingTitle ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsEditingTitle(false);
+              }}
+              className="flex items-center gap-1.5 flex-1"
+            >
+              <input
+                type="text"
+                value={lookTitle}
+                onChange={(e) => setLookTitle(e.target.value)}
+                autoFocus
+                onBlur={() => setIsEditingTitle(false)}
+                className="font-serif text-[18px] sm:text-[19px] font-medium text-[#2B2420] bg-[#FAF7F2] border border-[#7A4655] rounded-[8px] px-2.5 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-[#7A4655]"
+              />
+              <button
+                type="submit"
+                className="w-7 h-7 rounded-full bg-[#8C9B7E] text-white flex items-center justify-center shrink-0 hover:bg-[#7a886d] transition-colors shadow-2xs"
+                title="Guardar nombre"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            </form>
+          ) : (
+            <div className="flex items-center gap-2 group">
+              <h3 className="font-serif text-[18px] sm:text-[19px] font-medium text-[#2B2420]">
+                {lookTitle}
+              </h3>
+              <button
+                type="button"
+                id="btn-edit-look-title"
+                onClick={() => setIsEditingTitle(true)}
+                className="p-1 rounded-full text-[#75695E] hover:text-[#2B2420] hover:bg-[#ECE4DA] transition-colors"
+                title="Editar nombre del look"
+                aria-label="Editar nombre del look"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
         <p className="text-[13px] text-[#75695E] mt-1 leading-snug">
           {result.stylingDescription}

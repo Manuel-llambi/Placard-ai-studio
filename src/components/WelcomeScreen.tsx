@@ -1,14 +1,12 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, Check } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStart: () => void;
-  onTrySampleDirectly: () => void;
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onStart,
-  onTrySampleDirectly,
 }) => {
   return (
     <div className="w-full max-w-md mx-auto px-5 pt-3 pb-8 flex flex-col min-h-[calc(100vh-60px)]">
@@ -56,7 +54,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       {/* "Lo que vas a hacer a continuación" Steps Section */}
       <div className="bg-[#ECE4DA]/70 rounded-[18px] p-4 border border-[#DCD2C4]/60 mb-4">
         <span className="text-[11px] font-semibold tracking-wider text-[#75695E] uppercase block mb-3">
-          ¿CÓMO FUNCIONA ESTA PRUEBA? (EN 2 PASOS):
+          ¿CÓMO FUNCIONA ESTA PRUEBA? (EN 3 PASOS):
         </span>
 
         <div className="space-y-3">
@@ -98,8 +96,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
           {/* Step 3 (Outcome) */}
           <div className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-[#8C9B7E] text-white text-[12px] font-semibold flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-              <Check className="w-3.5 h-3.5 stroke-[3]" />
+            <div className="w-6 h-6 rounded-full bg-[#7A4655] text-white text-[12px] font-semibold flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              3
             </div>
             <div className="flex-1">
               <h4 className="text-[13.5px] font-semibold text-[#2B2420] leading-snug">
@@ -124,7 +122,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       </div>
 
       {/* Primary CTA Button */}
-      <div className="mt-auto space-y-2">
+      <div className="mt-auto">
         <button
           id="btn-welcome-start"
           onClick={onStart}
@@ -132,14 +130,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         >
           <span>Comenzar mi primera prueba</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </button>
-
-        <button
-          id="btn-welcome-sample"
-          onClick={onTrySampleDirectly}
-          className="w-full py-2.5 text-center text-[12.5px] text-[#75695E] hover:text-[#2B2420] font-medium transition-colors"
-        >
-          O probar de inmediato con prendas de muestra →
         </button>
       </div>
     </div>

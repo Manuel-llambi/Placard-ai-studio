@@ -5,12 +5,8 @@ import {
   Check,
   Sparkles,
   X,
-  Shirt,
-  Sun,
-  Maximize2,
 } from 'lucide-react';
 import { Garment } from '../types';
-import { SAMPLE_GARMENTS } from '../data/samples';
 import { GarmentPhotoGuideModal } from './GarmentPhotoGuideModal';
 
 interface Step1GarmentProps {
@@ -170,7 +166,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
           Primero, una prenda que ames
         </h2>
         <p className="text-[14px] text-[#75695E] mt-1.5 leading-relaxed">
-          Sacale una foto a una prenda tuya o elegí una de muestra para probar la silueta de inmediato.
+          Sacale una foto a una prenda tuya para ver cómo te queda puesta en tu silueta.
         </p>
       </div>
 
@@ -295,62 +291,66 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               </button>
             </div>
 
-            {/* Visual Guidelines Banner (3 Indications with Icons) */}
-            <div className="w-full mt-3.5 pt-3 border-t border-[#DCD2C4]/60 text-left">
-              <div className="mb-2">
+            {/* Synthesized Visual Guidance inside the Card */}
+            <div
+              id="synthesized-garment-guidance"
+              className="w-full mt-3.5 pt-3 border-t border-[#DCD2C4]/70 text-left"
+            >
+              <div className="flex items-center justify-between mb-2 px-0.5">
                 <span className="text-[10.5px] font-semibold text-[#75695E] uppercase tracking-wider">
-                  Indicaciones para foto correcta:
+                  Recomendaciones para tu foto:
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setIsGuideModalOpen(true)}
+                  className="text-[11px] font-medium text-[#7A4655] hover:underline"
+                >
+                  Ver más detalles
+                </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsGuideModalOpen(true)}
-                  className="bg-[#FAF7F2] rounded-[12px] p-2 border border-[#DCD2C4]/60 flex flex-col items-center hover:border-[#A79C8E] transition-colors"
-                >
-                  <div className="w-7 h-7 rounded-full bg-[#ECE4DA] flex items-center justify-center mb-1 text-[#7A4655]">
-                    <Shirt className="w-3.5 h-3.5" />
+              <div className="grid grid-cols-2 gap-2 text-left">
+                {/* Así sí */}
+                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
+                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
+                    <img
+                      src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600&auto=format&fit=crop"
+                      alt="Así sí"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#8C9B7E] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      <span>Así sí</span>
+                    </div>
                   </div>
-                  <span className="text-[11px] font-semibold text-[#2B2420] block leading-tight">
-                    En percha o cama
+                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
+                    En percha o estirada
+                  </p>
+                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
+                    Luz suave y sin tu sombra
                   </span>
-                  <span className="text-[10px] text-[#75695E] block leading-tight mt-0.5">
-                    Bien estirada
-                  </span>
-                </button>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsGuideModalOpen(true)}
-                  className="bg-[#FAF7F2] rounded-[12px] p-2 border border-[#DCD2C4]/60 flex flex-col items-center hover:border-[#A79C8E] transition-colors"
-                >
-                  <div className="w-7 h-7 rounded-full bg-[#ECE4DA] flex items-center justify-center mb-1 text-[#AD8A56]">
-                    <Sun className="w-3.5 h-3.5" />
+                {/* Así no */}
+                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
+                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
+                    <img
+                      src="https://images.unsplash.com/photo-1582533561751-ef6f6ab93a2e?q=80&w=600&auto=format&fit=crop"
+                      alt="Así no"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#A85A46] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
+                      <X className="w-2.5 h-2.5 stroke-[3]" />
+                      <span>Así no</span>
+                    </div>
                   </div>
-                  <span className="text-[11px] font-semibold text-[#2B2420] block leading-tight">
-                    Luz natural
+                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
+                    Arrugada o doblada
+                  </p>
+                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
+                    En desorden o bordes cortados
                   </span>
-                  <span className="text-[10px] text-[#75695E] block leading-tight mt-0.5">
-                    Sin tu sombra
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsGuideModalOpen(true)}
-                  className="bg-[#FAF7F2] rounded-[12px] p-2 border border-[#DCD2C4]/60 flex flex-col items-center hover:border-[#A79C8E] transition-colors"
-                >
-                  <div className="w-7 h-7 rounded-full bg-[#ECE4DA] flex items-center justify-center mb-1 text-[#75695E]">
-                    <Maximize2 className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-[#2B2420] block leading-tight">
-                    Prenda entera
-                  </span>
-                  <span className="text-[10px] text-[#75695E] block leading-tight mt-0.5">
-                    Sin cortar bordes
-                  </span>
-                </button>
+                </div>
               </div>
             </div>
 
@@ -410,52 +410,6 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
             )}
           </>
         )}
-      </div>
-
-      {/* Samples section */}
-      <div className="mb-5">
-        <h4 className="text-[11px] font-semibold tracking-wider text-[#75695E] uppercase mb-2.5">
-          O PROBÁ AL INSTANTE CON UNA DE MUESTRA:
-        </h4>
-
-        <div className="grid grid-cols-2 gap-3">
-          {SAMPLE_GARMENTS.map((garment) => {
-            const isSelected = selectedGarment?.id === garment.id;
-            return (
-              <button
-                key={garment.id}
-                id={`sample-garment-${garment.id}`}
-                onClick={() => onSelectGarment(garment)}
-                className={`text-left p-2.5 rounded-[16px] bg-[#FAF7F2] border transition-all flex flex-col relative group ${
-                  isSelected
-                    ? 'border-[#7A4655] ring-2 ring-[#7A4655]/20 shadow-sm'
-                    : 'border-[#DCD2C4]/70 hover:border-[#A79C8E]'
-                }`}
-              >
-                {isSelected && (
-                  <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#7A4655] text-white flex items-center justify-center z-10 shadow-xs">
-                    <Check className="w-3 h-3 stroke-[3]" />
-                  </div>
-                )}
-                <div className="w-full aspect-[4/3] rounded-[10px] overflow-hidden bg-[#ECE4DA] mb-2 relative">
-                  <img
-                    src={garment.imageUrl}
-                    alt={garment.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#2B2420]/15 to-transparent pointer-events-none" />
-                </div>
-                <span className="text-[13px] font-medium text-[#2B2420] leading-snug">
-                  {garment.name}
-                </span>
-                <span className="text-[11px] text-[#75695E] mt-0.5">
-                  {garment.category}
-                </span>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Continue CTA */}

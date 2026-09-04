@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, User, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { OnboardingStep } from '../types';
 
 interface HeaderProps {
@@ -15,7 +15,6 @@ export const Header: React.FC<HeaderProps> = ({
   onBack,
   onReset,
   subtitle,
-  showAvatar = true,
 }) => {
   const canGoBack = currentStep !== 'welcome';
 
@@ -56,19 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="w-10 flex items-center justify-end">
-        {showAvatar ? (
-          <button
-            id="header-avatar-button"
-            onClick={onReset}
-            title="Perfil / Reiniciar"
-            className="w-8 h-8 rounded-full bg-[#7A4655] text-white flex items-center justify-center shadow-sm hover:opacity-90 active:scale-95 transition-all"
-            aria-label="Cuenta de usuario"
-          >
-            <User className="w-4 h-4" />
-          </button>
-        ) : (
-          <div className="w-8 h-8" />
-        )}
+        <div className="w-9 h-9" />
       </div>
     </header>
   );
