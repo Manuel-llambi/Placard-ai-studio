@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Placard — Probador Virtual de Moda (VTON)</title>
+    <meta name="description" content="Onboarding y visualización de propuesta de valor de Placard: probador virtual de moda (VTON) foto-a-foto." />
+    <meta property="og:title" content="Placard — Probador Virtual de Moda (VTON)" />
+    <meta property="og:description" content="Onboarding y visualización de propuesta de valor de Placard: probador virtual de moda (VTON) foto-a-foto." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      // Suppress third-party browser extension errors (such as MetaMask or wallet injection into iframes)
+      window.addEventListener('error', function(e) {
+        var msg = (e && e.message) ? String(e.message) : '';
+        var file = (e && e.filename) ? String(e.filename) : '';
+        if (
+          msg.includes('MetaMask') ||
+          msg.includes('ethereum') ||
+          msg.includes('evm') ||
+          file.includes('chrome-extension') ||
+          file.includes('moz-extension')
+        ) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          return true;
+        }
+      }, true);
+
+      window.addEventListener('unhandledrejection', function(e) {
+        var reason = (e && e.reason) ? String(e.reason.message || e.reason) : '';
+        if (
+          reason.includes('MetaMask') ||
+          reason.includes('ethereum') ||
+          reason.includes('evm')
+        ) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }, true);
+    </script>
+  </head>
+  <body class="bg-[#F6F1EA] text-[#2B2420] antialiased selection:bg-[#C6A2AC] selection:text-[#2B2420]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

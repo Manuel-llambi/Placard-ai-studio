@@ -1,0 +1,6 @@
+{
+  "name": "Placard",
+  "description": "Onboarding y visualización de propuesta de valor de Placard: probador virtual de moda (VTON) foto-a-foto.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
