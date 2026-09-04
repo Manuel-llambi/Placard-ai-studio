@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
+import { X, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -26,8 +33,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
     }, 600);
   };
 
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailSubmit = () => {
     if (!email) return;
     setIsLoading(true);
     setTimeout(() => {
@@ -38,49 +44,54 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#2B2420]/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="w-full max-w-sm bg-[#F6F1EA] rounded-[24px] overflow-hidden p-6 shadow-2xl border border-[#DCD2C4]/70 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#ECE4DA] text-[#2B2420] flex items-center justify-center hover:bg-[#DCD2C4] transition-all"
-          aria-label="Cerrar modal"
+    <View style={styles.backdrop}>
+      <View style={styles.modalCard}>
+        <TouchableOpacity
+          onPress={onClose}
+          activeOpacity={0.7}
+          style={styles.closeButton}
+          accessibilityLabel="Cerrar modal"
         >
-          <X className="w-4 h-4" />
-        </button>
+          <X size={16} color="#2B2420" />
+        </TouchableOpacity>
 
         {/* Hanger icon in ciruela circle */}
-        <div className="w-12 h-12 rounded-full bg-[#7A4655] text-white flex items-center justify-center mx-auto mb-3.5 shadow-sm">
-          <Sparkles className="w-6 h-6" />
-        </div>
+        <View style={styles.iconCircle}>
+          <Sparkles size={24} color="#FFFFFF" />
+        </View>
 
-        <div className="text-center mb-5">
-          <h3 className="font-serif text-[20px] font-medium text-[#2B2420] leading-tight">
+        <View style={styles.headerBlock}>
+          <Text style={styles.title}>
             Guardá tu placard digital
-          </h3>
-          <p className="text-[13px] text-[#75695E] mt-1.5 leading-relaxed">
+          </Text>
+          <Text style={styles.description}>
             Tus fotos y silueta quedan guardadas de forma 100% privada. Accedé a tus looks en cualquier momento.
-          </p>
-        </div>
+          </Text>
+        </View>
 
         {/* Action Buttons */}
-        <div className="space-y-2.5 mb-4">
-          <button
-            onClick={() => handleProvider('Apple')}
+        <View style={styles.buttonStack}>
+          <TouchableOpacity
+            onPress={() => handleProvider('Apple')}
             disabled={isLoading}
-            className="w-full py-3 px-4 rounded-[14px] bg-[#2B2420] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-black active:scale-[0.98] transition-all shadow-xs disabled:opacity-60"
+            activeOpacity={0.85}
+            style={[styles.appleButton, isLoading && styles.disabledButton]}
           >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 170 170">
+            <svg width="16" height="16" viewBox="0 0 170 170" fill="#FFFFFF">
               <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.89-11.96-14.54-7.25-11.24-12.82-24.16-16.71-38.74-3.89-14.59-5.83-27.91-5.83-39.99 0-14.99 3.59-27.32 10.77-37 7.18-9.69 16.38-14.65 27.6-14.88 4.7 0 10.02 1.25 15.96 3.76 5.94 2.51 9.77 3.82 11.51 3.93 1.9.11 5.92-1.35 12.06-4.38 6.13-3.04 11.45-4.4 15.96-4.08 17.52 1.37 30.68 8.42 39.46 21.17-15.35 9.32-22.92 22.18-22.7 38.58.23 12.84 5.09 23.47 14.59 31.9 4.35 3.91 9.24 6.78 14.68 8.62-3.07 9.1-7.1 18.25-12.09 27.46zM119.22 33.5c0-7.39 2.65-14.58 7.95-21.57 5.3-6.99 11.95-11.45 19.95-13.38.74 7.61-1.63 14.98-7.1 22.1-5.47 7.12-12.4 11.45-20.8 12.85z" />
             </svg>
-            <span>{isLoading ? 'Conectando...' : 'Continuar con Apple'}</span>
-          </button>
+            <Text style={styles.appleButtonText}>
+              {isLoading ? 'Conectando...' : 'Continuar con Apple'}
+            </Text>
+          </TouchableOpacity>
 
-          <button
-            onClick={() => handleProvider('Google')}
+          <TouchableOpacity
+            onPress={() => handleProvider('Google')}
             disabled={isLoading}
-            className="w-full py-2.5 px-4 rounded-[14px] bg-[#FAF7F2] text-[#2B2420] border border-[#DCD2C4] font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all shadow-xs disabled:opacity-60"
+            activeOpacity={0.85}
+            style={[styles.googleButton, isLoading && styles.disabledButton]}
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg width="16" height="16" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
@@ -98,41 +109,215 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            <span>{isLoading ? 'Conectando...' : 'Continuar con Google'}</span>
-          </button>
-        </div>
+            <Text style={styles.googleButtonText}>
+              {isLoading ? 'Conectando...' : 'Continuar con Google'}
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        <div className="relative flex py-2 items-center">
-          <div className="flex-grow border-t border-[#DCD2C4]" />
-          <span className="flex-shrink mx-3 text-[11px] text-[#75695E] uppercase tracking-wider">
-            o con email
-          </span>
-          <div className="flex-grow border-t border-[#DCD2C4]" />
-        </div>
+        {/* Divider */}
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o con email</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-        <form onSubmit={handleEmailSubmit} className="space-y-2 mt-1">
-          <input
-            type="email"
+        {/* Email form */}
+        <View style={styles.emailForm}>
+          <TextInput
             placeholder="camila@ejemplo.com"
+            placeholderTextColor="#A79C8E"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-[12px] bg-[#ECE4DA] border border-[#DCD2C4] text-[13px] text-[#2B2420] placeholder:text-[#A79C8E] focus:outline-none focus:ring-1 focus:ring-[#7A4655]"
-            required
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.textInput}
           />
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-2.5 rounded-[12px] bg-[#7A4655] text-white text-[13px] font-medium hover:bg-[#693846] transition-all"
+          <TouchableOpacity
+            onPress={handleEmailSubmit}
+            disabled={isLoading || !email}
+            activeOpacity={0.85}
+            style={[
+              styles.submitButton,
+              (!email || isLoading) && styles.disabledButton,
+            ]}
           >
-            Crear cuenta gratuita
-          </button>
-        </form>
+            <Text style={styles.submitButtonText}>Crear cuenta gratuita</Text>
+          </TouchableOpacity>
+        </View>
 
-        <div className="mt-4 pt-3 border-t border-[#DCD2C4]/60 flex items-center justify-center gap-1.5 text-[11px] text-[#75695E]">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#8C9B7E]" />
-          <span>Sin spam · Tus fotos nunca se comparten</span>
-        </div>
-      </div>
-    </div>
+        <View style={styles.footerNote}>
+          <ShieldCheck size={14} color="#8C9B7E" />
+          <Text style={styles.footerNoteText}>
+            Sin spam · Tus fotos nunca se comparten
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  backdrop: {
+    position: 'fixed' as any,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 50,
+    backgroundColor: 'rgba(43, 36, 32, 0.75)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 384,
+    backgroundColor: '#F6F1EA',
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.7)',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ECE4DA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#7A4655',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 14,
+  },
+  headerBlock: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontFamily: 'serif',
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#2B2420',
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 13,
+    color: '#75695E',
+    marginTop: 6,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  buttonStack: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  appleButton: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#2B2420',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  appleButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  googleButton: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  googleButtonText: {
+    color: '#2B2420',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#DCD2C4',
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 11,
+    color: '#75695E',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  emailForm: {
+    gap: 8,
+    marginTop: 4,
+  },
+  textInput: {
+    width: '100%',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#ECE4DA',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    fontSize: 13,
+    color: '#2B2420',
+  },
+  submitButton: {
+    width: '100%',
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#7A4655',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  footerNote: {
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(220, 210, 196, 0.6)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  footerNoteText: {
+    fontSize: 11,
+    color: '#75695E',
+  },
+});

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { Header } from './components/Header';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Step1Garment } from './components/Step1Garment';
@@ -108,9 +109,9 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F1EA] text-[#2B2420] flex flex-col items-center selection:bg-[#C6A2AC] selection:text-[#2B2420]">
-      {/* Phone container wrapper for responsive desktop/tablet presentation */}
-      <div className="w-full max-w-md min-h-screen bg-[#F6F1EA] shadow-lg flex flex-col relative border-x border-[#DCD2C4]/30">
+    <View style={styles.outerContainer}>
+      {/* Phone container wrapper for responsive mobile presentation */}
+      <View style={styles.phoneContainer}>
         {/* Header */}
         <Header
           currentStep={currentStep}
@@ -121,7 +122,7 @@ export default function App() {
         />
 
         {/* Step Views */}
-        <main className="flex-1 flex flex-col">
+        <View style={styles.mainContent}>
           {currentStep === 'welcome' && (
             <WelcomeScreen
               onStart={() => setCurrentStep('step1_garment')}
@@ -163,7 +164,7 @@ export default function App() {
               onSignUpModal={() => setIsSignUpModalOpen(true)}
             />
           )}
-        </main>
+        </View>
 
         {/* Processing Modal during generation */}
         {currentStep === 'processing' && selectedGarment && (
@@ -182,11 +183,51 @@ export default function App() {
 
         {/* Toast notifications */}
         {toastMessage && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#2B2420] text-[#F6F1EA] px-4 py-2 rounded-full text-[12.5px] font-medium shadow-lg animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {toastMessage}
-          </div>
+          <View style={styles.toast}>
+            <Text style={styles.toastText}>{toastMessage}</Text>
+          </View>
         )}
-      </div>
-    </div>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  outerContainer: {
+    minHeight: '100vh' as any,
+    backgroundColor: '#F6F1EA',
+    alignItems: 'center',
+    width: '100%',
+  },
+  phoneContainer: {
+    width: '100%',
+    maxWidth: 448,
+    minHeight: '100vh' as any,
+    backgroundColor: '#F6F1EA',
+    flexDirection: 'column',
+    position: 'relative',
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.3)',
+  },
+  mainContent: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    zIndex: 50,
+    backgroundColor: '#2B2420',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 9999,
+  },
+  toastText: {
+    color: '#F6F1EA',
+    fontSize: 12.5,
+    fontWeight: '500',
+  },
+});
+

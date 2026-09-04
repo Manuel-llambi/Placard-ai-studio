@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from 'react-native';
 import { X, Sliders, Check } from 'lucide-react';
 import { VtonResult } from '../types';
 
@@ -12,150 +19,404 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
   const [activeTab, setActiveTab] = useState<'slider' | 'sideBySide'>('slider');
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#2B2420]/80 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-[#F6F1EA] rounded-[24px] overflow-hidden flex flex-col shadow-2xl max-h-[92vh]">
+    <View style={styles.overlay}>
+      <View style={styles.modalCard}>
         {/* Header */}
-        <div className="p-4 px-5 border-b border-[#DCD2C4]/60 flex items-center justify-between bg-[#FAF7F2]">
-          <div>
-            <span className="text-[11px] font-semibold text-[#8C9B7E] uppercase tracking-wider block">
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.headerSubtitle}>
               Comparativa de calce virtual
-            </span>
-            <h3 className="font-serif text-[18px] font-medium text-[#2B2420]">
+            </Text>
+            <Text style={styles.headerTitle}>
               {result.lookTitle}
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#ECE4DA] text-[#2B2420] flex items-center justify-center hover:bg-[#DCD2C4] transition-all"
-            aria-label="Cerrar modal"
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={onClose}
+            activeOpacity={0.7}
+            style={styles.closeButton}
+            accessibilityLabel="Cerrar modal"
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            <X size={16} color="#2B2420" />
+          </TouchableOpacity>
+        </View>
 
         {/* View mode toggle */}
-        <div className="flex items-center justify-center gap-2 p-2 bg-[#ECE4DA]/60 border-b border-[#DCD2C4]/40">
-          <button
-            onClick={() => setActiveTab('slider')}
-            className={`px-3 py-1 rounded-full text-[12px] font-medium transition-all ${
-              activeTab === 'slider'
-                ? 'bg-[#7A4655] text-white shadow-xs'
-                : 'text-[#75695E] hover:text-[#2B2420]'
-            }`}
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            onPress={() => setActiveTab('slider')}
+            activeOpacity={0.7}
+            style={[
+              styles.tabButton,
+              activeTab === 'slider' && styles.tabButtonActive,
+            ]}
           >
-            Deslizador Antes / Después
-          </button>
-          <button
-            onClick={() => setActiveTab('sideBySide')}
-            className={`px-3 py-1 rounded-full text-[12px] font-medium transition-all ${
-              activeTab === 'sideBySide'
-                ? 'bg-[#7A4655] text-white shadow-xs'
-                : 'text-[#75695E] hover:text-[#2B2420]'
-            }`}
+            <Text
+              style={[
+                styles.tabButtonText,
+                activeTab === 'slider' && styles.tabButtonTextActive,
+              ]}
+            >
+              Deslizador Antes / Después
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setActiveTab('sideBySide')}
+            activeOpacity={0.7}
+            style={[
+              styles.tabButton,
+              activeTab === 'sideBySide' && styles.tabButtonActive,
+            ]}
           >
-            Lado a lado
-          </button>
-        </div>
+            <Text
+              style={[
+                styles.tabButtonText,
+                activeTab === 'sideBySide' && styles.tabButtonTextActive,
+              ]}
+            >
+              Lado a lado
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Content area */}
-        <div className="p-4 flex-1 overflow-y-auto flex flex-col items-center justify-center">
+        <View style={styles.contentArea}>
           {activeTab === 'slider' ? (
-            <div className="relative w-full max-w-sm aspect-[3/4] rounded-[18px] overflow-hidden select-none shadow-md border border-[#DCD2C4]">
+            <View style={styles.sliderContainer}>
               {/* After: VTON Result */}
-              <img
-                src={result.resultImageUrl}
-                alt="Resultado VTON"
-                className="absolute inset-0 w-full h-full object-cover"
+              <Image
+                source={{ uri: result.resultImageUrl }}
+                accessibilityLabel="Resultado VTON"
+                style={styles.absoluteImage}
+                resizeMode="cover"
               />
 
               {/* Before: Reference Photo clipped */}
-              <div
-                className="absolute inset-0 overflow-hidden border-r-2 border-white shadow-[0_0_10px_rgba(0,0,0,0.3)]"
-                style={{ width: `${sliderPos}%` }}
+              <View
+                style={[
+                  styles.beforeClippedView,
+                  { width: `${sliderPos}%` },
+                ]}
               >
-                <img
-                  src={result.referencePhoto.imageUrl}
-                  alt="Referencia original"
-                  className="absolute inset-0 w-full h-full object-cover max-w-none"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                <Image
+                  source={{ uri: result.referencePhoto.imageUrl }}
+                  accessibilityLabel="Referencia original"
+                  style={styles.absoluteImage}
+                  resizeMode="cover"
                 />
-                <span className="absolute top-3 left-3 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium">
-                  Foto original
-                </span>
-              </div>
+                <View style={styles.badgeLeft}>
+                  <Text style={styles.badgeText}>Foto original</Text>
+                </View>
+              </View>
 
-              <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-[#7A4655]/90 backdrop-blur-xs text-white text-[10px] font-medium">
-                VTON Placard
-              </span>
+              <View style={styles.badgeRight}>
+                <Text style={styles.badgeText}>VTON Placard</Text>
+              </View>
 
               {/* Slider thumb handle */}
-              <div
-                className="absolute top-0 bottom-0 pointer-events-none flex items-center justify-center"
-                style={{ left: `calc(${sliderPos}% - 16px)` }}
+              <View
+                style={[
+                  styles.sliderThumbTrack,
+                  { left: `calc(${sliderPos}% - 16px)` as any },
+                ]}
               >
-                <div className="w-8 h-8 rounded-full bg-white text-[#7A4655] shadow-lg flex items-center justify-center border-2 border-[#7A4655]">
-                  <Sliders className="w-4 h-4 rotate-90" />
-                </div>
-              </div>
+                <View style={styles.sliderThumb}>
+                  <Sliders size={16} color="#7A4655" />
+                </View>
+              </View>
 
-              {/* Invisible interactive input */}
+              {/* Interactive range input */}
               <input
                 type="range"
                 min="0"
                 max="100"
                 value={sliderPos}
                 onChange={(e) => setSliderPos(Number(e.target.value))}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: 'ew-resize',
+                  zIndex: 20,
+                }}
                 aria-label="Deslizar para comparar"
               />
-            </div>
+            </View>
           ) : (
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold text-[#75695E] mb-1 text-center">
-                  Tu referencia
-                </span>
-                <div className="aspect-[3/4] rounded-[14px] overflow-hidden bg-[#ECE4DA] border border-[#DCD2C4]">
-                  <img
-                    src={result.referencePhoto.imageUrl}
-                    alt="Original"
-                    className="w-full h-full object-cover"
+            <View style={styles.sideBySideRow}>
+              <View style={styles.sideBySideCol}>
+                <Text style={styles.colTitle}>Tu referencia</Text>
+                <View style={styles.sideCard}>
+                  <Image
+                    source={{ uri: result.referencePhoto.imageUrl }}
+                    accessibilityLabel="Original"
+                    style={styles.fullSizeImage}
+                    resizeMode="cover"
                   />
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold text-[#7A4655] mb-1 text-center flex items-center justify-center gap-1">
-                  <span>Con {result.garment.name}</span>
-                  <Check className="w-3 h-3 text-[#8C9B7E]" />
-                </span>
-                <div className="aspect-[3/4] rounded-[14px] overflow-hidden bg-[#ECE4DA] border-2 border-[#7A4655]/40 shadow-sm">
-                  <img
-                    src={result.resultImageUrl}
-                    alt="Con prenda"
-                    className="w-full h-full object-cover"
+                </View>
+              </View>
+              <View style={styles.sideBySideCol}>
+                <View style={styles.colTitleRow}>
+                  <Text style={styles.colTitleColored}>Con {result.garment.name}</Text>
+                  <Check size={12} color="#8C9B7E" />
+                </View>
+                <View style={[styles.sideCard, styles.sideCardHighlighted]}>
+                  <Image
+                    source={{ uri: result.resultImageUrl }}
+                    accessibilityLabel="Con prenda"
+                    style={styles.fullSizeImage}
+                    resizeMode="cover"
                   />
-                </div>
-              </div>
-            </div>
+                </View>
+              </View>
+            </View>
           )}
 
-          <div className="mt-4 text-center">
-            <span className="text-[12px] text-[#75695E]">
-              Calce estimado: <strong className="text-[#2B2420]">{result.fitPercentage}% de concordancia anatómica</strong> con silueta real.
-            </span>
-          </div>
-        </div>
+          <View style={styles.fitNote}>
+            <Text style={styles.fitNoteText}>
+              Calce estimado: {result.fitPercentage}% de concordancia anatómica con silueta real.
+            </Text>
+          </View>
+        </View>
 
         {/* Footer */}
-        <div className="p-4 bg-[#FAF7F2] border-t border-[#DCD2C4]/60 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2.5 rounded-[12px] bg-[#7A4655] text-white text-[13px] font-medium hover:bg-[#693846] transition-all"
+        <View style={styles.footer}>
+          <TouchableOpacity
+            onPress={onClose}
+            activeOpacity={0.8}
+            style={styles.footerButton}
           >
-            Cerrar comparativa
-          </button>
-        </div>
-      </div>
-    </div>
+            <Text style={styles.footerButtonText}>Cerrar comparativa</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    position: 'fixed' as any,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    backgroundColor: 'rgba(43, 36, 32, 0.8)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 512,
+    backgroundColor: '#F6F1EA',
+    borderRadius: 24,
+    overflow: 'hidden',
+    maxHeight: '92vh' as any,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(220, 210, 196, 0.6)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FAF7F2',
+  },
+  headerSubtitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#8C9B7E',
+    letterSpacing: 0.8,
+  },
+  headerTitle: {
+    fontFamily: 'serif',
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#2B2420',
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ECE4DA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 8,
+    backgroundColor: 'rgba(236, 228, 218, 0.6)',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(220, 210, 196, 0.4)',
+  },
+  tabButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  tabButtonActive: {
+    backgroundColor: '#7A4655',
+  },
+  tabButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#75695E',
+  },
+  tabButtonTextActive: {
+    color: '#FFFFFF',
+  },
+  contentArea: {
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sliderContainer: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 340,
+    aspectRatio: 3 / 4,
+    borderRadius: 18,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  absoluteImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  beforeClippedView: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    overflow: 'hidden',
+    borderRightWidth: 2,
+    borderRightColor: '#FFFFFF',
+  },
+  badgeLeft: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  badgeRight: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    backgroundColor: 'rgba(122, 70, 85, 0.9)',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '500',
+  },
+  sliderThumbTrack: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sliderThumb: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#7A4655',
+  },
+  sideBySideRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  sideBySideCol: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  colTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#75695E',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  colTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  colTitleColored: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#7A4655',
+  },
+  sideCard: {
+    aspectRatio: 3 / 4,
+    borderRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: '#ECE4DA',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  sideCardHighlighted: {
+    borderWidth: 2,
+    borderColor: 'rgba(122, 70, 85, 0.4)',
+  },
+  fullSizeImage: {
+    width: '100%',
+    height: '100%',
+  },
+  fitNote: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  fitNoteText: {
+    fontSize: 12,
+    color: '#75695E',
+    textAlign: 'center',
+  },
+  footer: {
+    padding: 16,
+    backgroundColor: '#FAF7F2',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(220, 210, 196, 0.6)',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  footerButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#7A4655',
+  },
+  footerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+});
+

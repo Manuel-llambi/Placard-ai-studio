@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
+import {
   Maximize2,
   Heart,
   Check,
@@ -29,12 +37,12 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
   const handleShare = () => {
-    if (navigator.share) {
+    if (typeof navigator !== 'undefined' && navigator.share) {
       navigator
         .share({
           title: 'Mi primer look en Placard VTON',
           text: `Mirá cómo me queda el ${result.garment.name} en mi probador virtual Placard.`,
-          url: window.location.href,
+          url: typeof window !== 'undefined' ? window.location.href : '',
         })
         .catch(() => {});
     } else {
@@ -44,153 +52,142 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-5 pt-2 pb-10 flex flex-col min-h-[calc(100vh-60px)]">
+    <View style={styles.container}>
       {/* Screen Title */}
-      <div className="text-center mb-4">
-        <h2 className="font-serif text-[27px] font-semibold text-[#2B2420] tracking-tight leading-snug">
+      <View style={styles.titleWrapper}>
+        <Text style={styles.mainTitle}>
           ¡Tu primer look está listo!
-        </h2>
-      </div>
+        </Text>
+      </View>
 
       {/* Hero Card with Virtual Try-On Image */}
-      <div
-        id="vton-hero-card"
-        className="relative w-full aspect-[3/4.2] rounded-[20px] overflow-hidden bg-[#ECE4DA] shadow-[0_4px_16px_rgba(43,36,32,0.12)] border border-[#DCD2C4]/40 mb-4 group"
-      >
-        <img
-          src={result.resultImageUrl}
-          alt={result.lookTitle}
-          className="w-full h-full object-cover select-none"
+      <View id="vton-hero-card" style={styles.heroCard}>
+        <Image
+          source={{ uri: result.resultImageUrl }}
+          accessibilityLabel={result.lookTitle}
+          style={styles.heroImage}
+          resizeMode="cover"
         />
 
         {/* Floating Scrim for readability */}
-        <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#2B2420]/50 to-transparent pointer-events-none" />
+        <View style={styles.scrimOverlay} />
 
         {/* Top-Left: Garment Indicator Chip */}
-        <div className="absolute top-3.5 left-3.5 flex items-center gap-2 bg-[#FAF7F2]/95 backdrop-blur-md px-2.5 py-1.5 rounded-full shadow-sm border border-white/40">
-          <img
-            src={result.garment.imageUrl}
-            alt={result.garment.name}
-            className="w-5 h-5 rounded-full object-cover border border-[#DCD2C4]"
+        <View style={styles.garmentChip}>
+          <Image
+            source={{ uri: result.garment.imageUrl }}
+            accessibilityLabel={result.garment.name}
+            style={styles.garmentChipThumb}
           />
-          <span className="text-[11px] font-medium text-[#2B2420]">
-            <span className="text-[#75695E] text-[9.5px] uppercase tracking-wider block leading-none">
-              TU PRENDA
-            </span>
-            {result.garment.name}
-          </span>
-          <div className="w-4 h-4 rounded-full bg-[#8C9B7E] text-white flex items-center justify-center ml-0.5">
-            <Check className="w-2.5 h-2.5 stroke-[3]" />
-          </div>
-        </div>
+          <View>
+            <Text style={styles.garmentChipLabel}>TU PRENDA</Text>
+            <Text style={styles.garmentChipName}>{result.garment.name}</Text>
+          </View>
+          <View style={styles.garmentCheckBadge}>
+            <Check size={10} color="#FFFFFF" strokeWidth={3} />
+          </View>
+        </View>
 
         {/* Top-Right: Expand / Compare Button */}
-        <button
+        <TouchableOpacity
           id="btn-expand-compare"
-          onClick={() => setIsCompareOpen(true)}
-          className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-[#FAF7F2]/95 backdrop-blur-md text-[#2B2420] flex items-center justify-center shadow-sm hover:bg-white active:scale-95 transition-all"
-          title="Ver comparativa antes / después"
+          onPress={() => setIsCompareOpen(true)}
+          activeOpacity={0.8}
+          style={styles.topRightButton}
+          accessibilityLabel="Ver comparativa antes / después"
         >
-          <Maximize2 className="w-4 h-4" />
-        </button>
+          <Maximize2 size={16} color="#2B2420" />
+        </TouchableOpacity>
 
-        {/* Bottom-Right: Favorite Heart Button */}
-        <div className="absolute bottom-3.5 right-3.5 flex items-center gap-2">
-          <button
-            onClick={handleShare}
-            className="w-9 h-9 rounded-full bg-[#FAF7F2]/90 backdrop-blur-md text-[#2B2420] flex items-center justify-center shadow-xs hover:bg-white active:scale-95 transition-all"
-            title="Compartir look"
+        {/* Bottom-Right: Share & Favorite Buttons */}
+        <View style={styles.bottomActionsRow}>
+          <TouchableOpacity
+            onPress={handleShare}
+            activeOpacity={0.8}
+            style={styles.actionCircleButton}
+            accessibilityLabel="Compartir look"
           >
-            <Share2 className="w-4 h-4 text-[#75695E]" />
-          </button>
-          <button
+            <Share2 size={16} color="#75695E" />
+          </TouchableOpacity>
+          <TouchableOpacity
             id="btn-favorite-look"
-            onClick={() => setIsFavorite(!isFavorite)}
-            className={`w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center shadow-xs active:scale-95 transition-all ${
-              isFavorite
-                ? 'bg-[#7A4655] text-white'
-                : 'bg-[#FAF7F2]/90 text-[#2B2420] hover:bg-white'
-            }`}
-            title="Guardar en favoritos"
+            onPress={() => setIsFavorite(!isFavorite)}
+            activeOpacity={0.8}
+            style={[
+              styles.actionCircleButton,
+              isFavorite && styles.favoriteActiveButton,
+            ]}
+            accessibilityLabel="Guardar en favoritos"
           >
             <Heart
-              className={`w-4 h-4 ${
-                isFavorite ? 'fill-white stroke-white' : 'stroke-[2]'
-              }`}
+              size={16}
+              color={isFavorite ? '#FFFFFF' : '#2B2420'}
+              fill={isFavorite ? '#FFFFFF' : 'transparent'}
             />
-          </button>
-        </div>
-      </div>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {shareSuccess && (
-        <div className="mb-3 px-3 py-2 bg-[#FAF7F2] border border-[#8C9B7E] rounded-[10px] text-[12px] text-[#2B2420] flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-[#8C9B7E]" />
-          <span>¡Enlace del look copiado al portapapeles!</span>
-        </div>
+        <View style={styles.shareBanner}>
+          <CheckCircle size={16} color="#8C9B7E" />
+          <Text style={styles.shareBannerText}>¡Enlace del look copiado al portapapeles!</Text>
+        </View>
       )}
 
       {/* Look Metadata & Description */}
-      <div className="mb-5 px-1">
-        <div className="flex items-center gap-2">
+      <View style={styles.metadataWrapper}>
+        <View style={styles.titleRow}>
           {isEditingTitle ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setIsEditingTitle(false);
-              }}
-              className="flex items-center gap-1.5 flex-1"
-            >
-              <input
-                type="text"
+            <View style={styles.editTitleRow}>
+              <TextInput
                 value={lookTitle}
-                onChange={(e) => setLookTitle(e.target.value)}
+                onChangeText={setLookTitle}
                 autoFocus
                 onBlur={() => setIsEditingTitle(false)}
-                className="font-serif text-[18px] sm:text-[19px] font-medium text-[#2B2420] bg-[#FAF7F2] border border-[#7A4655] rounded-[8px] px-2.5 py-0.5 w-full focus:outline-none focus:ring-1 focus:ring-[#7A4655]"
+                onSubmitEditing={() => setIsEditingTitle(false)}
+                style={styles.titleInput}
               />
-              <button
-                type="submit"
-                className="w-7 h-7 rounded-full bg-[#8C9B7E] text-white flex items-center justify-center shrink-0 hover:bg-[#7a886d] transition-colors shadow-2xs"
-                title="Guardar nombre"
+              <TouchableOpacity
+                onPress={() => setIsEditingTitle(false)}
+                activeOpacity={0.8}
+                style={styles.saveTitleButton}
               >
-                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </form>
+                <Check size={14} color="#FFFFFF" strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
           ) : (
-            <div className="flex items-center gap-2 group">
-              <h3 className="font-serif text-[18px] sm:text-[19px] font-medium text-[#2B2420]">
+            <View style={styles.displayTitleRow}>
+              <Text style={styles.lookTitleText}>
                 {lookTitle}
-              </h3>
-              <button
-                type="button"
+              </Text>
+              <TouchableOpacity
                 id="btn-edit-look-title"
-                onClick={() => setIsEditingTitle(true)}
-                className="p-1 rounded-full text-[#75695E] hover:text-[#2B2420] hover:bg-[#ECE4DA] transition-colors"
-                title="Editar nombre del look"
-                aria-label="Editar nombre del look"
+                onPress={() => setIsEditingTitle(true)}
+                activeOpacity={0.7}
+                style={styles.editIconButton}
+                accessibilityLabel="Editar nombre del look"
               >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
+                <Pencil size={14} color="#75695E" />
+              </TouchableOpacity>
+            </View>
           )}
-        </div>
-        <p className="text-[13px] text-[#75695E] mt-1 leading-snug">
+        </View>
+        <Text style={styles.stylingDescription}>
           {result.stylingDescription}
-        </p>
-      </div>
+        </Text>
+      </View>
 
       {/* Value Proposition & Conversion Card (The Core Goal) */}
-      <div
-        id="value-proposition-conversion-card"
-        className="bg-[#ECE4DA] rounded-[20px] p-5 shadow-[0_2px_8px_rgba(43,36,32,0.06)] border border-[#DCD2C4]/60 flex flex-col"
-      >
-        <div className="flex items-start gap-3.5 mb-4">
-          <div className="w-10 h-10 rounded-full bg-[#7A4655] text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+      <View id="value-proposition-conversion-card" style={styles.conversionCard}>
+        <View style={styles.cardHeaderRow}>
+          <View style={styles.hangerBadge}>
             <svg
-              className="w-5 h-5"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="currentColor"
+              stroke="#FFFFFF"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -198,39 +195,39 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
               <path d="M12 4a3 3 0 0 1 3 3c0 .88-.38 1.67-1 2.22V10l7 6H3l7-6v-.78A3 3 0 0 1 12 4z" />
               <line x1="3" y1="16" x2="21" y2="16" />
             </svg>
-          </div>
+          </View>
 
-          <div>
-            <h4 className="font-serif text-[17px] font-medium text-[#2B2420] leading-snug">
+          <View style={styles.cardHeaderText}>
+            <Text style={styles.cardHeaderTitle}>
               Guardá este look y sumá todo tu placard
-            </h4>
-            <p className="text-[12.5px] text-[#75695E] mt-1 leading-relaxed">
+            </Text>
+            <Text style={styles.cardHeaderDesc}>
               Tu prenda y silueta ya están procesadas. Creá tu acceso gratis para conservarlas y armar conjuntos ilimitados.
-            </p>
-          </div>
-        </div>
+            </Text>
+          </View>
+        </View>
 
         {/* Auth Action Buttons */}
-        <div className="space-y-2.5">
-          <button
+        <View style={styles.authButtonsStack}>
+          <TouchableOpacity
             id="btn-auth-apple"
-            onClick={() => onAuthSuccess('Apple')}
-            className="w-full py-3 px-4 rounded-[14px] bg-[#2B2420] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#1e1b15] active:scale-[0.98] transition-all shadow-xs"
+            onPress={() => onAuthSuccess('Apple')}
+            activeOpacity={0.88}
+            style={styles.appleButton}
           >
-            {/* Apple Logo SVG */}
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 170 170">
+            <svg width="16" height="16" viewBox="0 0 170 170" fill="#FFFFFF">
               <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.89-11.96-14.54-7.25-11.24-12.82-24.16-16.71-38.74-3.89-14.59-5.83-27.91-5.83-39.99 0-14.99 3.59-27.32 10.77-37 7.18-9.69 16.38-14.65 27.6-14.88 4.7 0 10.02 1.25 15.96 3.76 5.94 2.51 9.77 3.82 11.51 3.93 1.9.11 5.92-1.35 12.06-4.38 6.13-3.04 11.45-4.4 15.96-4.08 17.52 1.37 30.68 8.42 39.46 21.17-15.35 9.32-22.92 22.18-22.7 38.58.23 12.84 5.09 23.47 14.59 31.9 4.35 3.91 9.24 6.78 14.68 8.62-3.07 9.1-7.1 18.25-12.09 27.46zM119.22 33.5c0-7.39 2.65-14.58 7.95-21.57 5.3-6.99 11.95-11.45 19.95-13.38.74 7.61-1.63 14.98-7.1 22.1-5.47 7.12-12.4 11.45-20.8 12.85z" />
             </svg>
-            <span>Continuar con Apple</span>
-          </button>
+            <Text style={styles.appleButtonText}>Continuar con Apple</Text>
+          </TouchableOpacity>
 
-          <button
+          <TouchableOpacity
             id="btn-auth-google"
-            onClick={() => onAuthSuccess('Google')}
-            className="w-full py-2.5 px-4 rounded-[14px] bg-[#FAF7F2] text-[#2B2420] border border-[#DCD2C4] font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all shadow-xs"
+            onPress={() => onAuthSuccess('Google')}
+            activeOpacity={0.88}
+            style={styles.googleButton}
           >
-            {/* Google Logo SVG */}
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg width="16" height="16" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
@@ -248,22 +245,23 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
                 d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
               />
             </svg>
-            <span>Continuar con Google</span>
-          </button>
-        </div>
+            <Text style={styles.googleButtonText}>Continuar con Google</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Guest Mode Link */}
-        <div className="text-center mt-3.5">
-          <button
+        <View style={styles.guestLinkWrap}>
+          <TouchableOpacity
             id="btn-explore-as-guest"
-            onClick={onExploreGuest}
-            className="text-[13px] text-[#75695E] hover:text-[#2B2420] font-medium inline-flex items-center gap-1 group py-1"
+            onPress={onExploreGuest}
+            activeOpacity={0.7}
+            style={styles.guestButton}
           >
-            <span>Explorar la app como invitada</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
-      </div>
+            <Text style={styles.guestButtonText}>Explorar la app como invitada</Text>
+            <ArrowRight size={14} color="#75695E" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* Before / After Fullscreen Modal */}
       {isCompareOpen && (
@@ -272,6 +270,292 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
           onClose={() => setIsCompareOpen(false)}
         />
       )}
-    </div>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    maxWidth: 448,
+    marginHorizontal: 'auto',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 40,
+    flexDirection: 'column',
+    minHeight: 'calc(100vh - 60px)' as any,
+  },
+  titleWrapper: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  mainTitle: {
+    fontFamily: 'serif',
+    fontSize: 27,
+    fontWeight: '600',
+    color: '#2B2420',
+    textAlign: 'center',
+    letterSpacing: -0.4,
+    lineHeight: 32,
+  },
+  heroCard: {
+    width: '100%',
+    aspectRatio: 3 / 4.2,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#ECE4DA',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.4)',
+    marginBottom: 16,
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  scrimOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 112,
+    backgroundColor: 'rgba(43, 36, 32, 0.35)',
+  },
+  garmentChip: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(250, 247, 242, 0.95)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  garmentChipThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  garmentChipLabel: {
+    color: '#75695E',
+    fontSize: 9.5,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+  },
+  garmentChipName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#2B2420',
+    lineHeight: 13,
+  },
+  garmentCheckBadge: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#8C9B7E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 2,
+  },
+  topRightButton: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(250, 247, 242, 0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bottomActionsRow: {
+    position: 'absolute',
+    bottom: 14,
+    right: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionCircleButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(250, 247, 242, 0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  favoriteActiveButton: {
+    backgroundColor: '#7A4655',
+  },
+  shareBanner: {
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#8C9B7E',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  shareBannerText: {
+    fontSize: 12,
+    color: '#2B2420',
+  },
+  metadataWrapper: {
+    marginBottom: 20,
+    paddingHorizontal: 4,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    flex: 1,
+  },
+  titleInput: {
+    fontFamily: 'serif',
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#2B2420',
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#7A4655',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    flex: 1,
+  },
+  saveTitleButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#8C9B7E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  displayTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  lookTitleText: {
+    fontFamily: 'serif',
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#2B2420',
+  },
+  editIconButton: {
+    padding: 4,
+    borderRadius: 12,
+  },
+  stylingDescription: {
+    fontSize: 13,
+    color: '#75695E',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  conversionCard: {
+    backgroundColor: '#ECE4DA',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.6)',
+    flexDirection: 'column',
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 14,
+    marginBottom: 16,
+  },
+  hangerBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#7A4655',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  cardHeaderText: {
+    flex: 1,
+  },
+  cardHeaderTitle: {
+    fontFamily: 'serif',
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#2B2420',
+    lineHeight: 22,
+  },
+  cardHeaderDesc: {
+    fontSize: 12.5,
+    color: '#75695E',
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  authButtonsStack: {
+    gap: 10,
+  },
+  appleButton: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#2B2420',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  appleButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  googleButton: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  googleButtonText: {
+    color: '#2B2420',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  guestLinkWrap: {
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  guestButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 4,
+  },
+  guestButtonText: {
+    fontSize: 13,
+    color: '#75695E',
+    fontWeight: '600',
+  },
+});
+

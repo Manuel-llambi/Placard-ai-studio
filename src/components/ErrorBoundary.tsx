@@ -1,4 +1,5 @@
 import React, { ErrorInfo, ReactNode } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -40,26 +41,27 @@ export class ErrorBoundary extends React.Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#F6F1EA] text-[#2B2420] flex items-center justify-center p-5">
-          <div className="max-w-sm w-full bg-[#FAF7F2] p-6 rounded-[20px] border border-[#DCD2C4] shadow-sm text-center">
-            <div className="w-12 h-12 rounded-full bg-[#ECE4DA] text-[#7A4655] flex items-center justify-center mx-auto mb-3">
-              <AlertCircle className="w-6 h-6" />
-            </div>
-            <h2 className="font-serif text-[20px] font-semibold text-[#2B2420] mb-2">
+        <View style={styles.container}>
+          <View style={styles.card}>
+            <View style={styles.iconCircle}>
+              <AlertCircle size={24} color="#7A4655" />
+            </View>
+            <Text style={styles.title}>
               Algo inesperado ocurrió
-            </h2>
-            <p className="text-[13px] text-[#75695E] mb-5 leading-relaxed">
+            </Text>
+            <Text style={styles.description}>
               Ocurrió un error temporal al cargar la vista. Podés reintentar para continuar usando Placard.
-            </p>
-            <button
-              onClick={this.handleReset}
-              className="w-full py-3 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#693846] transition-all"
+            </Text>
+            <TouchableOpacity
+              onPress={this.handleReset}
+              activeOpacity={0.85}
+              style={styles.resetButton}
             >
-              <RefreshCw className="w-4 h-4" />
-              <span>Recargar aplicación</span>
-            </button>
-          </div>
-        </div>
+              <RefreshCw size={16} color="#FFFFFF" />
+              <Text style={styles.resetButtonText}>Recargar aplicación</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       );
     }
 
@@ -67,3 +69,63 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
+const styles = StyleSheet.create({
+  container: {
+    minHeight: '100vh' as any,
+    backgroundColor: '#F6F1EA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    width: '100%',
+  },
+  card: {
+    maxWidth: 384,
+    width: '100%',
+    backgroundColor: '#FAF7F2',
+    padding: 24,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    alignItems: 'center',
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#ECE4DA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  title: {
+    fontFamily: 'serif',
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#2B2420',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 13,
+    color: '#75695E',
+    marginBottom: 20,
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  resetButton: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#7A4655',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  resetButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+});

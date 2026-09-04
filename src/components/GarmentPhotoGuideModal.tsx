@@ -1,5 +1,13 @@
 import React from 'react';
-import { Camera, X, Check, Sun, Sparkles, Shirt, Maximize2, ShieldCheck } from 'lucide-react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import { Camera, X, Check, ShieldCheck } from 'lucide-react';
 
 interface GarmentPhotoGuideModalProps {
   isOpen: boolean;
@@ -16,161 +24,370 @@ export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#2B2420]/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
-      <div
-        className="w-full max-w-md bg-[#F6F1EA] rounded-t-[24px] sm:rounded-[24px] border-t sm:border border-[#DCD2C4] shadow-2xl max-h-[92vh] overflow-y-auto flex flex-col animate-in slide-in-from-bottom-4 duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <View style={styles.backdrop}>
+      <View style={styles.modalCard}>
         {/* Sticky Header */}
-        <div className="sticky top-0 z-10 bg-[#F6F1EA]/95 backdrop-blur-md px-5 pt-4 pb-3 border-b border-[#DCD2C4]/60 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#7A4655]/15 text-[#7A4655] flex items-center justify-center">
-              <Camera className="w-4 h-4 stroke-[2]" />
-            </div>
-            <div>
-              <span className="text-[10.5px] font-semibold text-[#7A4655] uppercase tracking-wider block">
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <View style={styles.iconCircle}>
+              <Camera size={16} color="#7A4655" strokeWidth={2} />
+            </View>
+            <View>
+              <Text style={styles.categoryLabel}>
                 PRENDA PROPIA · GUÍA DE FOTO
-              </span>
-              <h3 className="font-serif text-[18px] font-semibold text-[#2B2420] leading-tight">
+              </Text>
+              <Text style={styles.title}>
                 Cómo sacar la foto perfecta
-              </h3>
-            </div>
-          </div>
+              </Text>
+            </View>
+          </View>
 
-          <button
+          <TouchableOpacity
             id="btn-close-garment-guide"
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-[#ECE4DA] text-[#75695E] hover:text-[#2B2420] flex items-center justify-center transition-colors"
+            onPress={onClose}
+            activeOpacity={0.7}
+            style={styles.closeButton}
           >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+            <X size={16} color="#75695E" />
+          </TouchableOpacity>
+        </View>
 
         {/* Content Body */}
-        <div className="p-5 space-y-4">
-          <p className="text-[13px] text-[#75695E] leading-relaxed">
-            Nuestra IA recortará la prenda y la adaptará a tu silueta. Para que conserve su textura, color y caída natural, seguí estos consejos:
-          </p>
+        <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.innerContent}>
+            <Text style={styles.introText}>
+              Nuestra IA recortará la prenda y la adaptará a tu silueta. Para que conserve su textura, color y caída natural, seguí estos consejos:
+            </Text>
 
-          {/* Comparative visual cards: Así sí vs Así no */}
-          <div className="grid grid-cols-2 gap-2.5">
-            {/* Así sí */}
-            <div className="bg-[#FAF7F2] rounded-[16px] p-2.5 border border-[#DCD2C4]/70 shadow-xs flex flex-col">
-              <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#8C9B7E] mb-2">
-                <div className="w-4 h-4 rounded-full bg-[#8C9B7E]/20 flex items-center justify-center">
-                  <Check className="w-2.5 h-2.5 stroke-[3] text-[#8C9B7E]" />
-                </div>
-                <span>Así sí</span>
-              </div>
-              <div className="w-full aspect-[4/3] rounded-[10px] overflow-hidden bg-[#ECE4DA] mb-2 relative">
-                <img
-                  src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600&auto=format&fit=crop"
-                  alt="Prenda estirada en percha con buena luz"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-              </div>
-              <p className="text-[11px] text-[#75695E] leading-snug">
-                En percha o sobre la cama, estirada y con luz natural suave.
-              </p>
-            </div>
+            {/* Comparative visual cards: Así sí vs Así no */}
+            <View style={styles.comparisonGrid}>
+              {/* Así sí */}
+              <View style={styles.compareCard}>
+                <View style={styles.compareHeader}>
+                  <View style={styles.badgeYes}>
+                    <Check size={10} color="#8C9B7E" strokeWidth={3} />
+                  </View>
+                  <Text style={styles.compareTitleYes}>Así sí</Text>
+                </View>
+                <View style={styles.imageWrapper}>
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=600&auto=format&fit=crop' }}
+                    accessibilityLabel="Prenda estirada en percha con buena luz"
+                    style={styles.cardImage}
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text style={styles.cardCaptionDesc}>
+                  En percha o sobre la cama, estirada y con luz natural suave.
+                </Text>
+              </View>
 
-            {/* Así no */}
-            <div className="bg-[#FAF7F2] rounded-[16px] p-2.5 border border-[#DCD2C4]/70 shadow-xs flex flex-col">
-              <div className="flex items-center gap-1.5 text-[11.5px] font-semibold text-[#A85A46] mb-2">
-                <div className="w-4 h-4 rounded-full bg-[#A85A46]/20 flex items-center justify-center">
-                  <X className="w-2.5 h-2.5 stroke-[3] text-[#A85A46]" />
-                </div>
-                <span>Así no</span>
-              </div>
-              <div className="w-full aspect-[4/3] rounded-[10px] overflow-hidden bg-[#ECE4DA] mb-2 relative">
-                <img
-                  src="https://images.unsplash.com/photo-1582533561751-ef6f6ab93a2e?q=80&w=600&auto=format&fit=crop"
-                  alt="Prenda arrugada o en desorden"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
-              </div>
-              <p className="text-[11px] text-[#75695E] leading-snug">
-                Arrugada, doblada en el suelo o con sombra del celular tapándola.
-              </p>
-            </div>
-          </div>
+              {/* Así no */}
+              <View style={styles.compareCard}>
+                <View style={styles.compareHeader}>
+                  <View style={styles.badgeNo}>
+                    <X size={10} color="#A85A46" strokeWidth={3} />
+                  </View>
+                  <Text style={styles.compareTitleNo}>Así no</Text>
+                </View>
+                <View style={styles.imageWrapper}>
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1582533561751-ef6f6ab93a2e?q=80&w=600&auto=format&fit=crop' }}
+                    accessibilityLabel="Prenda arrugada o en desorden"
+                    style={styles.cardImage}
+                    resizeMode="cover"
+                  />
+                </View>
+                <Text style={styles.cardCaptionDesc}>
+                  Arrugada, doblada en el suelo o con sombra del celular tapándola.
+                </Text>
+              </View>
+            </View>
 
-          {/* 4 Core Indications */}
-          <div className="bg-[#FAF7F2] rounded-[18px] p-3.5 border border-[#DCD2C4]/70 space-y-3">
-            <span className="text-[11px] font-semibold tracking-wider text-[#75695E] uppercase block mb-1">
-              4 CLAVES PARA UNA FOTO IMPECABLE:
-            </span>
+            {/* 4 Core Indications */}
+            <View style={styles.indicationsBox}>
+              <Text style={styles.indicationsHeading}>
+                4 CLAVES PARA UNA FOTO IMPECABLE:
+              </Text>
 
-            {/* Point 1 */}
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#ECE4DA] text-[#7A4655] flex items-center justify-center shrink-0 mt-0.5 font-semibold text-[12px]">
-                1
-              </div>
-              <div>
-                <h5 className="text-[13px] font-semibold text-[#2B2420] leading-snug">
-                  En percha o estirada sobre una superficie plana
-                </h5>
-                <p className="text-[12px] text-[#75695E] leading-relaxed mt-0.5">
-                  Colgala contra una pared lisa o extendela estirada sobre tu cama. Evitá que queden pliegues o mangas dobladas hacia atrás.
-                </p>
-              </div>
-            </div>
+              {/* Point 1 */}
+              <View style={styles.indicationRow}>
+                <View style={styles.stepNumberBadge}>
+                  <Text style={styles.stepNumberText}>1</Text>
+                </View>
+                <View style={styles.indicationContent}>
+                  <Text style={styles.indicationTitle}>
+                    En percha o estirada sobre una superficie plana
+                  </Text>
+                  <Text style={styles.indicationDesc}>
+                    Colgala contra una pared lisa o extendela estirada sobre tu cama. Evitá que queden pliegues o mangas dobladas hacia atrás.
+                  </Text>
+                </View>
+              </View>
 
-            {/* Point 2 */}
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#ECE4DA] text-[#7A4655] flex items-center justify-center shrink-0 mt-0.5 font-semibold text-[12px]">
-                2
-              </div>
-              <div>
-                <h5 className="text-[13px] font-semibold text-[#2B2420] leading-snug">
-                  Luz natural de día y sin sombras del teléfono
-                </h5>
-                <p className="text-[12px] text-[#75695E] leading-relaxed mt-0.5">
-                  Ubicá la prenda cerca de una ventana. Cuidá tu postura para que la sombra de tu cuerpo o celular no tape la prenda.
-                </p>
-              </div>
-            </div>
+              {/* Point 2 */}
+              <View style={styles.indicationRow}>
+                <View style={styles.stepNumberBadge}>
+                  <Text style={styles.stepNumberText}>2</Text>
+                </View>
+                <View style={styles.indicationContent}>
+                  <Text style={styles.indicationTitle}>
+                    Luz natural de día y sin sombras del teléfono
+                  </Text>
+                  <Text style={styles.indicationDesc}>
+                    Ubicá la prenda cerca de una ventana. Cuidá tu postura para que la sombra de tu cuerpo o celular no tape la prenda.
+                  </Text>
+                </View>
+              </View>
 
-            {/* Point 3 */}
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#ECE4DA] text-[#7A4655] flex items-center justify-center shrink-0 mt-0.5 font-semibold text-[12px]">
-                3
-              </div>
-              <div>
-                <h5 className="text-[13px] font-semibold text-[#2B2420] leading-snug">
-                  Toda la prenda dentro del encuadre
-                </h5>
-                <p className="text-[12px] text-[#75695E] leading-relaxed mt-0.5">
-                  Dejá un pequeño margen de aire alrededor. El cuello, los hombros, los puños y el dobladillo deben verse completos.
-                </p>
-              </div>
-            </div>
+              {/* Point 3 */}
+              <View style={styles.indicationRow}>
+                <View style={styles.stepNumberBadge}>
+                  <Text style={styles.stepNumberText}>3</Text>
+                </View>
+                <View style={styles.indicationContent}>
+                  <Text style={styles.indicationTitle}>
+                    Toda la prenda dentro del encuadre
+                  </Text>
+                  <Text style={styles.indicationDesc}>
+                    Dejá un pequeño margen de aire alrededor. El cuello, los hombros, los puños y el dobladillo deben verse completos.
+                  </Text>
+                </View>
+              </View>
 
-            {/* Point 4 */}
-            <div className="flex items-start gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#ECE4DA] text-[#7A4655] flex items-center justify-center shrink-0 mt-0.5 font-semibold text-[12px]">
-                4
-              </div>
-              <div>
-                <h5 className="text-[13px] font-semibold text-[#2B2420] leading-snug">
-                  Fondo contrastante y liso
-                </h5>
-                <p className="text-[12px] text-[#75695E] leading-relaxed mt-0.5">
-                  Si tu prenda es clara, usá una pared o colcha oscura. Si la prenda es oscura, usá un fondo claro para que el recorte sea perfecto.
-                </p>
-              </div>
-            </div>
-          </div>
+              {/* Point 4 */}
+              <View style={styles.indicationRow}>
+                <View style={styles.stepNumberBadge}>
+                  <Text style={styles.stepNumberText}>4</Text>
+                </View>
+                <View style={styles.indicationContent}>
+                  <Text style={styles.indicationTitle}>
+                    Fondo contrastante y liso
+                  </Text>
+                  <Text style={styles.indicationDesc}>
+                    Si tu prenda es clara, usá una pared o colcha oscura. Si la prenda es oscura, usá un fondo claro para que el recorte sea perfecto.
+                  </Text>
+                </View>
+              </View>
+            </View>
 
-          {/* Privacy reminder */}
-          <div className="flex items-center gap-2 px-3 py-2 rounded-[12px] bg-[#D3DAC7]/30 border border-[#8C9B7E]/40 text-[#2B2420] text-[11.5px]">
-            <ShieldCheck className="w-4 h-4 text-[#8C9B7E] shrink-0" />
-            <span>Tus fotos se procesan de forma privada y segura.</span>
-          </div>
-        </div>
-      </div>
-    </div>
+            {/* Privacy reminder */}
+            <View style={styles.privacyBanner}>
+              <ShieldCheck size={16} color="#8C9B7E" />
+              <Text style={styles.privacyText}>
+                Tus fotos se procesan de forma privada y segura.
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  backdrop: {
+    position: 'fixed' as any,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 50,
+    backgroundColor: 'rgba(43, 36, 32, 0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 448,
+    backgroundColor: '#F6F1EA',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    maxHeight: '92vh' as any,
+    overflow: 'hidden',
+  },
+  header: {
+    backgroundColor: '#F6F1EA',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(220, 210, 196, 0.6)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  iconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(122, 70, 85, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryLabel: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#7A4655',
+    letterSpacing: 0.8,
+  },
+  title: {
+    fontFamily: 'serif',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2B2420',
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#ECE4DA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollContent: {
+    flex: 1,
+  },
+  innerContent: {
+    padding: 20,
+    gap: 16,
+  },
+  introText: {
+    fontSize: 13,
+    color: '#75695E',
+    lineHeight: 18,
+  },
+  comparisonGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    width: '100%',
+  },
+  compareCard: {
+    flex: 1,
+    backgroundColor: '#FAF7F2',
+    borderRadius: 16,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.7)',
+  },
+  compareHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  badgeYes: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(140, 155, 126, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compareTitleYes: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: '#8C9B7E',
+  },
+  badgeNo: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'rgba(168, 90, 70, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  compareTitleNo: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: '#A85A46',
+  },
+  imageWrapper: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: '#ECE4DA',
+    marginBottom: 8,
+  },
+  cardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  cardCaptionDesc: {
+    fontSize: 11,
+    color: '#75695E',
+    lineHeight: 15,
+  },
+  indicationsBox: {
+    backgroundColor: '#FAF7F2',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.7)',
+    gap: 12,
+  },
+  indicationsHeading: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#75695E',
+    letterSpacing: 0.8,
+  },
+  indicationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  stepNumberBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ECE4DA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  stepNumberText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#7A4655',
+  },
+  indicationContent: {
+    flex: 1,
+  },
+  indicationTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2B2420',
+  },
+  indicationDesc: {
+    fontSize: 12,
+    color: '#75695E',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  privacyBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: 'rgba(211, 218, 199, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(140, 155, 126, 0.4)',
+  },
+  privacyText: {
+    fontSize: 11.5,
+    color: '#2B2420',
+    flex: 1,
+  },
+});

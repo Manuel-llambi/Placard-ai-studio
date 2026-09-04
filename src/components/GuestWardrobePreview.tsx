@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import {
   Sparkles,
   Plus,
   Heart,
-  Calendar,
-  Lock,
-  ArrowRight,
   Camera,
   Shirt,
   FolderHeart,
-  ChevronRight,
 } from 'lucide-react';
-import { Garment, VtonResult } from '../types';
+import { VtonResult } from '../types';
 import { SAMPLE_GARMENTS } from '../data/samples';
 
 interface GuestWardrobePreviewProps {
@@ -42,227 +46,611 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto px-5 pt-2 pb-24 flex flex-col min-h-[calc(100vh-60px)]">
+    <View style={styles.container}>
       {/* Banner: Guest Mode or Registered Account Status */}
       {!isRegisteredUser ? (
-        <div className="bg-[#FAF7F2] border border-[#DCD2C4] rounded-[16px] p-3.5 mb-4 shadow-xs flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full bg-[#7A4655]/10 text-[#7A4655] flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-[12px] font-semibold text-[#2B2420] block">
+        <View style={styles.guestBanner}>
+          <View style={styles.guestBannerLeft}>
+            <View style={styles.sparkleCircle}>
+              <Sparkles size={16} color="#7A4655" />
+            </View>
+            <View style={styles.guestBannerMeta}>
+              <Text style={styles.guestBannerTitle}>
                 Modo invitada activa
-              </span>
-              <p className="text-[11px] text-[#75695E] truncate">
+              </Text>
+              <Text style={styles.guestBannerSubtitle} numberOfLines={1}>
                 4 de 5 pruebas gratuitas restantes esta semana.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onSignUpModal}
-            className="px-3 py-1.5 rounded-full bg-[#7A4655] text-white text-[11.5px] font-medium shrink-0 hover:bg-[#693846] transition-all shadow-xs"
+              </Text>
+            </View>
+          </View>
+          <TouchableOpacity
+            onPress={onSignUpModal}
+            activeOpacity={0.85}
+            style={styles.saveWardrobeBtn}
           >
-            Guardar placard
-          </button>
-        </div>
+            <Text style={styles.saveWardrobeBtnText}>Guardar placard</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
-        <div className="bg-[#D3DAC7]/40 border border-[#8C9B7E]/50 rounded-[16px] p-3 mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#8C9B7E]" />
-            <span className="text-[12px] font-medium text-[#2B2420]">
+        <View style={styles.syncBanner}>
+          <View style={styles.syncRow}>
+            <View style={styles.greenDot} />
+            <Text style={styles.syncText}>
               Cuenta sincronizada con {userAuthMethod || 'Apple'}
-            </span>
-          </div>
-          <span className="text-[11px] text-[#75695E] font-medium">Plan Free</span>
-        </div>
+            </Text>
+          </View>
+          <Text style={styles.planText}>Plan Free</Text>
+        </View>
       )}
 
       {/* Screen Title & Tabs */}
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="font-serif text-[24px] font-medium text-[#2B2420]">
+      <View style={styles.titleRow}>
+        <Text style={styles.sectionTitle}>
           {activeTab === 'looks' ? 'Tus looks' : 'Tu placard'}
-        </h2>
-        <span className="text-[12px] text-[#75695E]">
+        </Text>
+        <Text style={styles.countText}>
           {activeTab === 'looks' ? '1 look generado' : '2 prendas'}
-        </span>
-      </div>
+        </Text>
+      </View>
 
       {/* Horizontal Filter Chips */}
       {activeTab === 'looks' ? (
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsContainer}
+        >
           {occasionChips.map((chip) => (
-            <button
+            <TouchableOpacity
               key={chip}
-              onClick={() => setSelectedOccasion(chip)}
-              className={`px-3 py-1 rounded-full text-[12px] font-medium shrink-0 transition-all ${
-                selectedOccasion === chip
-                  ? 'bg-[#C6A2AC] text-[#2B2420]'
-                  : 'bg-[#ECE4DA] text-[#75695E] hover:text-[#2B2420]'
-              }`}
+              onPress={() => setSelectedOccasion(chip)}
+              activeOpacity={0.7}
+              style={[
+                styles.chip,
+                selectedOccasion === chip ? styles.chipActive : styles.chipInactive,
+              ]}
             >
-              {chip}
-            </button>
+              <Text
+                style={[
+                  styles.chipText,
+                  selectedOccasion === chip ? styles.chipTextActive : styles.chipTextInactive,
+                ]}
+              >
+                {chip}
+              </Text>
+            </TouchableOpacity>
           ))}
-        </div>
+        </ScrollView>
       ) : (
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-3 scrollbar-none">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chipsScroll}
+          contentContainerStyle={styles.chipsContainer}
+        >
           {categoryChips.map((chip) => (
-            <button
+            <TouchableOpacity
               key={chip.label}
-              onClick={() => setSelectedCategory(chip.label)}
-              className={`px-3 py-1 rounded-full text-[12px] font-medium shrink-0 transition-all ${
-                selectedCategory === chip.label
-                  ? 'bg-[#C6A2AC] text-[#2B2420]'
-                  : 'bg-[#ECE4DA] text-[#75695E] hover:text-[#2B2420]'
-              }`}
+              onPress={() => setSelectedCategory(chip.label)}
+              activeOpacity={0.7}
+              style={[
+                styles.chip,
+                selectedCategory === chip.label ? styles.chipActive : styles.chipInactive,
+              ]}
             >
-              {chip.label} ({chip.count})
-            </button>
+              <Text
+                style={[
+                  styles.chipText,
+                  selectedCategory === chip.label ? styles.chipTextActive : styles.chipTextInactive,
+                ]}
+              >
+                {chip.label} ({chip.count})
+              </Text>
+            </TouchableOpacity>
           ))}
-        </div>
+        </ScrollView>
       )}
 
-      {/* Content Area (Masonry Grid as specified in DESIGN.md Section 8.3) */}
+      {/* Content Area */}
       {activeTab === 'looks' ? (
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <View style={styles.grid}>
           {/* Newly Generated Look */}
-          <div className="group relative rounded-[20px] overflow-hidden bg-[#ECE4DA] border border-[#DCD2C4]/70 shadow-xs flex flex-col">
-            <div className="aspect-[3/4.2] overflow-hidden relative">
-              <img
-                src={initialResult.resultImageUrl}
-                alt={initialResult.lookTitle}
-                className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+          <View style={styles.cardLook}>
+            <View style={styles.cardImageContainer}>
+              <Image
+                source={{ uri: initialResult.resultImageUrl }}
+                accessibilityLabel={initialResult.lookTitle}
+                style={styles.cardImage}
+                resizeMode="cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2B2420]/60 via-transparent to-transparent" />
-              <div className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white">
-                <Heart className="w-3.5 h-3.5 fill-[#7A4655] text-[#7A4655]" />
-              </div>
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                <span className="text-[10px] uppercase tracking-wider text-[#FAF7F2]/80 block">
+              <View style={styles.cardOverlay} />
+              <View style={styles.heartButton}>
+                <Heart size={14} color="#7A4655" fill="#7A4655" />
+              </View>
+              <View style={styles.lookMetaBottom}>
+                <Text style={styles.lookOccasion}>
                   {initialResult.occasion}
-                </span>
-                <p className="text-[12px] font-medium leading-tight truncate">
+                </Text>
+                <Text style={styles.lookTitle} numberOfLines={1}>
                   {initialResult.lookTitle}
-                </p>
-              </div>
-            </div>
-          </div>
+                </Text>
+              </View>
+            </View>
+          </View>
 
           {/* Add Another Look Prompt Card */}
-          <button
-            onClick={onNewVton}
-            className="aspect-[3/4.2] rounded-[20px] border-2 border-dashed border-[#DCD2C4] hover:border-[#7A4655] bg-[#ECE4DA]/40 hover:bg-[#ECE4DA]/80 flex flex-col items-center justify-center p-4 text-center group transition-all"
+          <TouchableOpacity
+            onPress={onNewVton}
+            activeOpacity={0.85}
+            style={styles.cardAddPrompt}
           >
-            <div className="w-11 h-11 rounded-full bg-[#FAF7F2] text-[#7A4655] flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
-              <Plus className="w-5 h-5" />
-            </div>
-            <span className="font-serif text-[14px] font-medium text-[#2B2420] block">
+            <View style={styles.plusCircle}>
+              <Plus size={20} color="#7A4655" />
+            </View>
+            <Text style={styles.addPromptTitle}>
               Probar otra prenda
-            </span>
-            <span className="text-[11px] text-[#75695E] mt-1 leading-snug">
+            </Text>
+            <Text style={styles.addPromptSubtitle}>
               Probá un jean, vestido o camisa en 10 segundos
-            </span>
-          </button>
-        </div>
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <View style={styles.grid}>
           {/* User's primary garment */}
-          <div className="relative rounded-[20px] overflow-hidden bg-[#ECE4DA] border border-[#DCD2C4]/70 shadow-xs flex flex-col">
-            <div className="aspect-[4/5] overflow-hidden relative">
-              <img
-                src={initialResult.garment.imageUrl}
-                alt={initialResult.garment.name}
-                className="w-full h-full object-cover"
+          <View style={styles.cardLook}>
+            <View style={styles.cardImageContainer}>
+              <Image
+                source={{ uri: initialResult.garment.imageUrl }}
+                accessibilityLabel={initialResult.garment.name}
+                style={styles.cardImage}
+                resizeMode="cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2B2420]/60 to-transparent" />
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                <span className="text-[10px] text-[#D3DAC7] uppercase font-semibold block">
+              <View style={styles.cardOverlay} />
+              <View style={styles.lookMetaBottom}>
+                <Text style={styles.garmentCategory}>
                   {initialResult.garment.category}
-                </span>
-                <p className="text-[12px] font-medium leading-tight truncate">
+                </Text>
+                <Text style={styles.lookTitle} numberOfLines={1}>
                   {initialResult.garment.name}
-                </p>
-              </div>
-            </div>
-          </div>
+                </Text>
+              </View>
+            </View>
+          </View>
 
           {/* Secondary sample garment */}
-          <div className="relative rounded-[20px] overflow-hidden bg-[#ECE4DA] border border-[#DCD2C4]/70 shadow-xs flex flex-col">
-            <div className="aspect-[4/5] overflow-hidden relative">
-              <img
-                src={SAMPLE_GARMENTS[1].imageUrl}
-                alt={SAMPLE_GARMENTS[1].name}
-                className="w-full h-full object-cover"
+          <View style={styles.cardLook}>
+            <View style={styles.cardImageContainer}>
+              <Image
+                source={{ uri: SAMPLE_GARMENTS[1].imageUrl }}
+                accessibilityLabel={SAMPLE_GARMENTS[1].name}
+                style={styles.cardImage}
+                resizeMode="cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2B2420]/60 to-transparent" />
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                <span className="text-[10px] text-[#D3DAC7] uppercase font-semibold block">
+              <View style={styles.cardOverlay} />
+              <View style={styles.lookMetaBottom}>
+                <Text style={styles.garmentCategory}>
                   {SAMPLE_GARMENTS[1].category}
-                </span>
-                <p className="text-[12px] font-medium leading-tight truncate">
+                </Text>
+                <Text style={styles.lookTitle} numberOfLines={1}>
                   {SAMPLE_GARMENTS[1].name}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
       )}
 
-      {/* Value proposition next step: Carga incremental */}
-      <div className="mt-auto bg-[#FAF7F2] rounded-[18px] p-4 border border-[#DCD2C4] shadow-xs">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-semibold tracking-wider text-[#7A4655] uppercase">
-            Siguiente combinación
-          </span>
-          <span className="text-[11px] text-[#75695E]">Sin catalogar todo</span>
-        </div>
-        <h4 className="font-serif text-[15px] text-[#2B2420] font-medium mb-1">
+      {/* Value proposition next step */}
+      <View style={styles.nextStepBox}>
+        <View style={styles.nextStepHeader}>
+          <Text style={styles.nextStepLabel}>
+            SIGUIENTE COMBINACIÓN
+          </Text>
+          <Text style={styles.nextStepHint}>Sin catalogar todo</Text>
+        </View>
+        <Text style={styles.nextStepTitle}>
           ¿Querés ver cómo combina con un jean vintage?
-        </h4>
-        <p className="text-[12px] text-[#75695E] mb-3">
+        </Text>
+        <Text style={styles.nextStepDesc}>
           Probá una prenda más y descubrí cómo armar un look completo sin desordenar tu placard.
-        </p>
-        <button
-          onClick={onNewVton}
-          className="w-full py-2.5 rounded-[12px] bg-[#7A4655] text-white text-[13px] font-medium flex items-center justify-center gap-2 hover:bg-[#693846] transition-all shadow-xs"
+        </Text>
+        <TouchableOpacity
+          onPress={onNewVton}
+          activeOpacity={0.88}
+          style={styles.tryAnotherBtn}
         >
-          <Camera className="w-4 h-4" />
-          <span>Hacer otra prueba virtual</span>
-        </button>
-      </div>
+          <Camera size={16} color="#FFFFFF" />
+          <Text style={styles.tryAnotherBtnText}>Hacer otra prueba virtual</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Bottom Navigation Bar (Specified in DESIGN.md Section 8.3) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-[#FAF7F2]/95 backdrop-blur-md border-t border-[#DCD2C4]/70 max-w-md mx-auto flex items-center justify-around py-2.5 px-6 shadow-[0_-2px_10px_rgba(43,36,32,0.05)]">
-        <button
-          onClick={() => setActiveTab('looks')}
-          className={`flex flex-col items-center gap-1 transition-colors ${
-            activeTab === 'looks' ? 'text-[#7A4655]' : 'text-[#A79C8E]'
-          }`}
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity
+          onPress={() => setActiveTab('looks')}
+          activeOpacity={0.7}
+          style={styles.navItem}
         >
-          <FolderHeart className={`w-5 h-5 ${activeTab === 'looks' ? 'stroke-[2.2]' : 'stroke-[1.5]'}`} />
-          <span className="text-[11px] font-medium">Looks</span>
-        </button>
+          <FolderHeart
+            size={20}
+            color={activeTab === 'looks' ? '#7A4655' : '#A79C8E'}
+            strokeWidth={activeTab === 'looks' ? 2.2 : 1.5}
+          />
+          <Text
+            style={[
+              styles.navLabel,
+              activeTab === 'looks' ? styles.navLabelActive : styles.navLabelInactive,
+            ]}
+          >
+            Looks
+          </Text>
+        </TouchableOpacity>
 
         {/* Elevated Center Camera Button */}
-        <button
-          onClick={onNewVton}
-          className="w-12 h-12 -mt-5 rounded-full bg-[#7A4655] text-white flex items-center justify-center shadow-lg hover:bg-[#693846] active:scale-95 transition-all"
-          title="Nueva prueba virtual"
+        <TouchableOpacity
+          onPress={onNewVton}
+          activeOpacity={0.85}
+          style={styles.centerFab}
+          accessibilityLabel="Nueva prueba virtual"
         >
-          <Plus className="w-6 h-6 stroke-[2.5]" />
-        </button>
+          <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />
+        </TouchableOpacity>
 
-        <button
-          onClick={() => setActiveTab('placard')}
-          className={`flex flex-col items-center gap-1 transition-colors ${
-            activeTab === 'placard' ? 'text-[#7A4655]' : 'text-[#A79C8E]'
-          }`}
+        <TouchableOpacity
+          onPress={() => setActiveTab('placard')}
+          activeOpacity={0.7}
+          style={styles.navItem}
         >
-          <Shirt className={`w-5 h-5 ${activeTab === 'placard' ? 'stroke-[2.2]' : 'stroke-[1.5]'}`} />
-          <span className="text-[11px] font-medium">Placard</span>
-        </button>
-      </nav>
-    </div>
+          <Shirt
+            size={20}
+            color={activeTab === 'placard' ? '#7A4655' : '#A79C8E'}
+            strokeWidth={activeTab === 'placard' ? 2.2 : 1.5}
+          />
+          <Text
+            style={[
+              styles.navLabel,
+              activeTab === 'placard' ? styles.navLabelActive : styles.navLabelInactive,
+            ]}
+          >
+            Placard
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    maxWidth: 448,
+    marginHorizontal: 'auto',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 96,
+    flexDirection: 'column',
+    minHeight: 'calc(100vh - 60px)' as any,
+  },
+  guestBanner: {
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  guestBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  sparkleCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(122, 70, 85, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  guestBannerMeta: {
+    flex: 1,
+  },
+  guestBannerTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#2B2420',
+  },
+  guestBannerSubtitle: {
+    fontSize: 11,
+    color: '#75695E',
+    marginTop: 2,
+  },
+  saveWardrobeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 9999,
+    backgroundColor: '#7A4655',
+  },
+  saveWardrobeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '500',
+  },
+  syncBanner: {
+    backgroundColor: 'rgba(211, 218, 199, 0.4)',
+    borderWidth: 1,
+    borderColor: 'rgba(140, 155, 126, 0.5)',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  syncRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  greenDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#8C9B7E',
+  },
+  syncText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#2B2420',
+  },
+  planText: {
+    fontSize: 11,
+    color: '#75695E',
+    fontWeight: '500',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontFamily: 'serif',
+    fontSize: 24,
+    fontWeight: '500',
+    color: '#2B2420',
+  },
+  countText: {
+    fontSize: 12,
+    color: '#75695E',
+  },
+  chipsScroll: {
+    marginBottom: 12,
+  },
+  chipsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingBottom: 8,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  chipActive: {
+    backgroundColor: '#C6A2AC',
+  },
+  chipInactive: {
+    backgroundColor: '#ECE4DA',
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  chipTextActive: {
+    color: '#2B2420',
+  },
+  chipTextInactive: {
+    color: '#75695E',
+  },
+  grid: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
+  cardLook: {
+    flex: 1,
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: '#ECE4DA',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.7)',
+  },
+  cardImageContainer: {
+    width: '100%',
+    aspectRatio: 3 / 4.2,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  cardImage: {
+    width: '100%',
+    height: '100%',
+  },
+  cardOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(43, 36, 32, 0.25)',
+  },
+  heartButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lookMetaBottom: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    right: 10,
+  },
+  lookOccasion: {
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    color: 'rgba(250, 247, 242, 0.8)',
+  },
+  lookTitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    marginTop: 2,
+  },
+  garmentCategory: {
+    fontSize: 10,
+    color: '#D3DAC7',
+    textTransform: 'uppercase',
+    fontWeight: '600',
+  },
+  cardAddPrompt: {
+    flex: 1,
+    aspectRatio: 3 / 4.2,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#DCD2C4',
+    backgroundColor: 'rgba(236, 228, 218, 0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  plusCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FAF7F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  addPromptTitle: {
+    fontFamily: 'serif',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#2B2420',
+    textAlign: 'center',
+  },
+  addPromptSubtitle: {
+    fontSize: 11,
+    color: '#75695E',
+    marginTop: 4,
+    textAlign: 'center',
+    lineHeight: 15,
+  },
+  nextStepBox: {
+    marginTop: 'auto',
+    backgroundColor: '#FAF7F2',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  nextStepHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  nextStepLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    color: '#7A4655',
+  },
+  nextStepHint: {
+    fontSize: 11,
+    color: '#75695E',
+  },
+  nextStepTitle: {
+    fontFamily: 'serif',
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#2B2420',
+    marginBottom: 4,
+  },
+  nextStepDesc: {
+    fontSize: 12,
+    color: '#75695E',
+    marginBottom: 12,
+    lineHeight: 16,
+  },
+  tryAnotherBtn: {
+    width: '100%',
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: '#7A4655',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  tryAnotherBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  bottomNav: {
+    position: 'fixed' as any,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 30,
+    backgroundColor: 'rgba(250, 247, 242, 0.95)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(220, 210, 196, 0.7)',
+    maxWidth: 448,
+    marginHorizontal: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+  },
+  navItem: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  navLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  navLabelActive: {
+    color: '#7A4655',
+  },
+  navLabelInactive: {
+    color: '#A79C8E',
+  },
+  centerFab: {
+    width: 48,
+    height: 48,
+    marginTop: -20,
+    borderRadius: 24,
+    backgroundColor: '#7A4655',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

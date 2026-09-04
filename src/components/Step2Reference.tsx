@@ -1,5 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from 'react-native';
+import {
   Camera,
   Image as ImageIcon,
   ShieldCheck,
@@ -107,13 +114,13 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-5 pt-2 pb-8 flex flex-col min-h-[calc(100vh-60px)]">
+    <View style={styles.container}>
       {/* Hidden Inputs for Gallery & Direct Camera Capture */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        className="hidden"
+        style={{ display: 'none' }}
         onChange={handleFileUpload}
       />
       <input
@@ -121,246 +128,648 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         type="file"
         accept="image/*"
         capture="user"
-        className="hidden"
+        style={{ display: 'none' }}
         onChange={handleFileUpload}
       />
 
       {/* Step Indicator & Progress */}
-      <div className="mb-3">
-        <div className="flex items-center justify-between text-[11px] font-semibold tracking-wider text-[#75695E] uppercase mb-1.5">
-          <span>Paso 2 de 2 • Tu cuerpo</span>
-          <span className="font-sans text-[#7A4655]">100%</span>
-        </div>
-        <div className="w-full h-1 bg-[#ECE4DA] rounded-full overflow-hidden">
-          <div className="w-full h-full bg-[#7A4655] rounded-full" />
-        </div>
-      </div>
+      <View style={styles.indicatorContainer}>
+        <View style={styles.indicatorRow}>
+          <Text style={styles.indicatorLabel}>Paso 2 de 2 • Tu cuerpo</Text>
+          <Text style={styles.indicatorPercent}>100%</Text>
+        </View>
+        <View style={styles.progressBarTrack}>
+          <View style={styles.progressBarFill} />
+        </View>
+      </View>
 
       {/* Garment Ready Status Banner */}
-      <div className="bg-[#FAF7F2] border border-[#DCD2C4]/70 rounded-[14px] p-2.5 flex items-center justify-between mb-4 shadow-xs">
-        <div className="flex items-center gap-3 min-w-0">
-          <img
-            src={selectedGarment.imageUrl}
-            alt={selectedGarment.name}
-            className="w-11 h-11 rounded-[8px] object-cover border border-[#DCD2C4]"
+      <View style={styles.statusBanner}>
+        <View style={styles.statusInfoRow}>
+          <Image
+            source={{ uri: selectedGarment.imageUrl }}
+            accessibilityLabel={selectedGarment.name}
+            style={styles.garmentThumb}
+            resizeMode="cover"
           />
-          <div className="min-w-0">
-            <span className="text-[11px] text-[#75695E] uppercase font-semibold tracking-wide block">
+          <View style={styles.statusMeta}>
+            <Text style={styles.garmentStatusLabel}>
               Prenda lista
-            </span>
-            <p className="text-[14px] font-medium text-[#2B2420] truncate">
+            </Text>
+            <Text style={styles.garmentName} numberOfLines={1}>
               {selectedGarment.name}
-            </p>
-          </div>
-        </div>
-        <div className="w-6 h-6 rounded-full bg-[#8C9B7E]/20 text-[#8C9B7E] flex items-center justify-center shrink-0">
-          <CheckCircle2 className="w-4 h-4 fill-[#8C9B7E] text-white stroke-[2]" />
-        </div>
-      </div>
+            </Text>
+          </View>
+        </View>
+        <View style={styles.checkCircleBadge}>
+          <CheckCircle2 size={16} color="#8C9B7E" />
+        </View>
+      </View>
 
       {/* Headline & Description */}
-      <div className="mb-4">
-        <h2 className="font-serif text-[26px] font-semibold text-[#2B2420] tracking-tight leading-snug">
+      <View style={styles.headerBlock}>
+        <Text style={styles.headline}>
           Ahora, tu foto de referencia
-        </h2>
-        <p className="text-[13.5px] text-[#75695E] mt-1 leading-relaxed">
+        </Text>
+        <Text style={styles.description}>
           Una foto de cuerpo entero para adaptar la prenda a tu silueta real. Podés tomarte una foto ahora o subir una de tu galería.
-        </p>
-      </div>
+        </Text>
+      </View>
 
-      {/* Interactive Body Capture & Upload Card (Same Component Layout & Background as Step 1) */}
-      <div
-        id="body-capture-card"
-        className="bg-[#ECE4DA] rounded-[20px] p-4 sm:p-5 mb-5 border border-transparent shadow-[0_1px_3px_rgba(43,36,32,0.06)] text-center flex flex-col items-center relative overflow-hidden transition-all"
-      >
+      {/* Interactive Body Capture & Upload Card */}
+      <View id="body-capture-card" style={styles.captureCard}>
         {isCameraActive ? (
           /* Live Camera View within the Card */
-          <div className="w-full flex flex-col items-center animate-in fade-in duration-200">
-            <div className="relative w-full aspect-[3/4] max-h-[340px] rounded-[16px] overflow-hidden bg-black mb-3">
+          <View style={styles.cameraContainer}>
+            <View style={styles.videoWrapper}>
               <video
                 ref={videoRef}
                 playsInline
                 muted
-                className="w-full h-full object-cover"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div className="w-44 h-64 border-2 border-dashed border-white/70 rounded-full opacity-80" />
-              </div>
-            </div>
+              <View style={styles.cameraOvalGuide} />
+            </View>
 
-            <div className="w-full flex items-center gap-2">
-              <button
-                onClick={stopCamera}
-                className="py-2.5 px-4 rounded-[12px] bg-[#FAF7F2] text-[#75695E] text-[13px] font-medium border border-[#DCD2C4]"
+            <View style={styles.cameraButtonsRow}>
+              <TouchableOpacity
+                onPress={stopCamera}
+                activeOpacity={0.8}
+                style={styles.cancelCameraButton}
               >
-                Cancelar
-              </button>
-              <button
-                onClick={captureCameraSnapshot}
-                className="flex-1 py-3 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#693846] shadow-sm active:scale-95 transition-all"
+                <Text style={styles.cancelCameraText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={captureCameraSnapshot}
+                activeOpacity={0.85}
+                style={styles.shutterButton}
               >
-                <Camera className="w-4 h-4" />
-                <span>Capturar foto</span>
-              </button>
-            </div>
-          </div>
+                <Camera size={16} color="#FFFFFF" />
+                <Text style={styles.shutterButtonText}>Capturar foto</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         ) : (
           /* Standard Card View */
           <>
-            <div className="w-13 h-13 rounded-full bg-[#FAF7F2] flex items-center justify-center text-[#7A4655] shadow-xs mb-2.5">
-              <Camera className="w-6 h-6 stroke-[1.8]" />
-            </div>
+            <View style={styles.cameraIconCircle}>
+              <Camera size={24} color="#7A4655" strokeWidth={1.8} />
+            </View>
 
-            <h3 className="font-sans font-semibold text-[17px] text-[#2B2420]">
+            <Text style={styles.cardTitle}>
               Capturá tu foto de cuerpo
-            </h3>
-            <p className="text-[13px] text-[#75695E] mt-1 mb-2 leading-normal max-w-[290px]">
+            </Text>
+            <Text style={styles.cardSubtitle}>
               Nuestra IA adaptará la prenda a tu silueta real, respetando tus proporciones.
-            </p>
+            </Text>
 
             {/* Direct Trigger to Open Guide Modal */}
-            <button
+            <TouchableOpacity
               id="btn-open-body-tips"
-              onClick={() => setIsGuideModalOpen(true)}
-              className="inline-flex items-center gap-1 text-[12px] text-[#7A4655] font-semibold hover:underline mb-4 transition-colors"
+              onPress={() => setIsGuideModalOpen(true)}
+              activeOpacity={0.7}
+              style={styles.guideTriggerButton}
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#7A4655]" />
-              <span>¿Cómo sacar una buena foto? Ver indicaciones</span>
-            </button>
+              <Sparkles size={14} color="#7A4655" />
+              <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
+            </TouchableOpacity>
 
             {/* Main Action Buttons */}
-            <div className="w-full space-y-2.5">
-              <button
+            <View style={styles.actionButtonsStack}>
+              <TouchableOpacity
                 id="btn-take-photo-body"
-                onClick={startLiveCamera}
-                className="w-full py-3 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-[#693846] active:scale-[0.98] transition-all shadow-sm"
+                onPress={startLiveCamera}
+                activeOpacity={0.85}
+                style={styles.primaryActionButton}
               >
-                <Camera className="w-4 h-4" />
-                <span>Tomar foto a mi cuerpo</span>
-              </button>
+                <Camera size={16} color="#FFFFFF" />
+                <Text style={styles.primaryActionText}>Tomar foto a mi cuerpo</Text>
+              </TouchableOpacity>
 
-              <button
+              <TouchableOpacity
                 id="btn-upload-gallery-body"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full py-2.5 px-4 rounded-[14px] bg-[#FAF7F2] text-[#2B2420] border border-[#DCD2C4] font-medium text-[14px] flex items-center justify-center gap-2 hover:bg-white active:scale-[0.98] transition-all"
+                onPress={() => fileInputRef.current?.click()}
+                activeOpacity={0.85}
+                style={styles.secondaryActionButton}
               >
-                <ImageIcon className="w-4 h-4 text-[#75695E]" />
-                <span>Subir de mi galería</span>
-              </button>
-            </div>
+                <ImageIcon size={16} color="#75695E" />
+                <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
+              </TouchableOpacity>
+            </View>
 
             {/* Synthesized Visual Guidance inside the Card */}
-            <div
-              id="synthesized-body-guidance"
-              className="w-full mt-3.5 pt-3 border-t border-[#DCD2C4]/70 text-left"
-            >
-              <div className="flex items-center justify-between mb-2 px-0.5">
-                <span className="text-[10.5px] font-semibold text-[#75695E] uppercase tracking-wider">
-                  Recomendaciones para tu foto:
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsGuideModalOpen(true)}
-                  className="text-[11px] font-medium text-[#7A4655] hover:underline"
+            <View id="synthesized-body-guidance" style={styles.guidanceSection}>
+              <View style={styles.guidanceHeader}>
+                <Text style={styles.guidanceLabel}>
+                  RECOMENDACIONES PARA TU FOTO:
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIsGuideModalOpen(true)}
+                  activeOpacity={0.7}
                 >
-                  Ver más detalles
-                </button>
-              </div>
+                  <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
+                </TouchableOpacity>
+              </View>
 
-              <div className="grid grid-cols-2 gap-2 text-left">
+              <View style={styles.guidanceGrid}>
                 {/* Así sí */}
-                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
-                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
-                    <img
-                      src={GUIDE_PHOTOS.asiSi.url}
-                      alt="Así sí"
-                      className="w-full h-full object-cover"
+                <View style={styles.guidanceCard}>
+                  <View style={styles.guidanceImageWrapper}>
+                    <Image
+                      source={{ uri: GUIDE_PHOTOS.asiSi.url }}
+                      accessibilityLabel="Así sí"
+                      style={styles.guidanceImage}
+                      resizeMode="cover"
                     />
-                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#8C9B7E] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
-                      <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      <span>Así sí</span>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
-                    De frente y cuerpo entero
-                  </p>
-                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
-                    Luz suave y ropa al cuerpo
-                  </span>
-                </div>
+                    <View style={styles.yesBadge}>
+                      <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                      <Text style={styles.badgeLabel}>Así sí</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.guidanceCardTitle}>De frente y cuerpo entero</Text>
+                  <Text style={styles.guidanceCardSubtitle}>Luz suave y ropa al cuerpo</Text>
+                </View>
 
                 {/* Así no */}
-                <div className="bg-[#FAF7F2] rounded-[14px] p-2 border border-[#DCD2C4]/60 flex flex-col shadow-2xs">
-                  <div className="relative w-full aspect-[4/3] rounded-[10px] overflow-hidden mb-1.5 bg-[#ECE4DA]">
-                    <img
-                      src={GUIDE_PHOTOS.asiNo.url}
-                      alt="Así no"
-                      className="w-full h-full object-cover"
+                <View style={styles.guidanceCard}>
+                  <View style={styles.guidanceImageWrapper}>
+                    <Image
+                      source={{ uri: GUIDE_PHOTOS.asiNo.url }}
+                      accessibilityLabel="Así no"
+                      style={styles.guidanceImage}
+                      resizeMode="cover"
                     />
-                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full bg-[#A85A46] text-white text-[10px] font-medium flex items-center gap-1 shadow-xs">
-                      <X className="w-2.5 h-2.5 stroke-[3]" />
-                      <span>Así no</span>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-[#2B2420] font-semibold leading-snug">
-                    En espejo o cortada
-                  </p>
-                  <span className="text-[9.5px] text-[#75695E] leading-tight mt-0.5">
-                    Celular tapando o contraluz
-                  </span>
-                </div>
-              </div>
-            </div>
+                    <View style={styles.noBadge}>
+                      <X size={10} color="#FFFFFF" strokeWidth={3} />
+                      <Text style={styles.badgeLabel}>Así no</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.guidanceCardTitle}>En espejo o cortada</Text>
+                  <Text style={styles.guidanceCardSubtitle}>Celular tapando o contraluz</Text>
+                </View>
+              </View>
+            </View>
           </>
         )}
-      </div>
+      </View>
 
       {cameraError && (
-        <p className="text-[12px] text-[#A85A46] bg-[#ECE4DA] p-2 rounded-[8px] mb-3 text-center">
+        <Text style={styles.errorText}>
           {cameraError}
-        </p>
+        </Text>
       )}
 
       {/* Fallback Option to Use Demo Photo if desired */}
       {!referencePhoto?.isDemo && (
-        <div className="text-center mb-3">
-          <button
-            onClick={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
-            className="text-[12px] text-[#75695E] hover:text-[#2B2420] hover:underline"
-          >
+        <TouchableOpacity
+          onPress={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
+          activeOpacity={0.7}
+          style={styles.demoLinkBox}
+        >
+          <Text style={styles.demoLinkText}>
             ¿Querés probar rápido? Podés usar la foto de prueba de Camila
-          </button>
-        </div>
+          </Text>
+        </TouchableOpacity>
       )}
 
       {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
-      <div className="bg-[#D3DAC7]/30 border border-[#8C9B7E]/40 rounded-[14px] p-3 flex items-start gap-2.5 mb-5">
-        <div className="w-6 h-6 rounded-full bg-[#8C9B7E]/20 flex items-center justify-center text-[#8C9B7E] shrink-0 mt-0.5">
-          <ShieldCheck className="w-3.5 h-3.5" />
-        </div>
-        <p className="text-[12px] text-[#2B2420] leading-snug">
+      <View style={styles.privacyBanner}>
+        <View style={styles.shieldIconWrapper}>
+          <ShieldCheck size={14} color="#8C9B7E" />
+        </View>
+        <Text style={styles.privacyText}>
           Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
-        </p>
-      </div>
+        </Text>
+      </View>
 
       {/* Primary CTA: Ver cómo te queda */}
-      <div className="mt-auto">
-        <button
+      <View style={styles.footerCTA}>
+        <TouchableOpacity
           id="btn-generate-vton"
-          onClick={onGenerate}
+          onPress={onGenerate}
           disabled={!referencePhoto}
-          className="w-full py-3.5 px-4 rounded-[14px] bg-[#7A4655] text-white font-medium text-[15px] flex items-center justify-center gap-2 hover:bg-[#693846] active:scale-[0.98] transition-all shadow-sm group"
+          activeOpacity={0.88}
+          style={styles.generateButton}
         >
-          <Sparkles className="w-4 h-4 text-[#FAF7F2] group-hover:rotate-12 transition-transform" />
-          <span>Ver cómo te queda</span>
-        </button>
-      </div>
+          <Sparkles size={16} color="#FAF7F2" />
+          <Text style={styles.generateButtonText}>Ver cómo te queda</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Body Photo Guide Modal */}
       <BodyPhotoGuideModal
         isOpen={isGuideModalOpen}
         onClose={() => setIsGuideModalOpen(false)}
       />
-    </div>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    maxWidth: 448,
+    marginHorizontal: 'auto',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 32,
+    flexDirection: 'column',
+    minHeight: 'calc(100vh - 60px)' as any,
+  },
+  indicatorContainer: {
+    marginBottom: 12,
+  },
+  indicatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  indicatorLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#75695E',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  indicatorPercent: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#7A4655',
+  },
+  progressBarTrack: {
+    width: '100%',
+    height: 4,
+    backgroundColor: '#ECE4DA',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#7A4655',
+    borderRadius: 2,
+  },
+  statusBanner: {
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.7)',
+    borderRadius: 14,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 16,
+  },
+  statusInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  garmentThumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  statusMeta: {
+    flex: 1,
+  },
+  garmentStatusLabel: {
+    fontSize: 11,
+    color: '#75695E',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  garmentName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#2B2420',
+  },
+  checkCircleBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(140, 155, 126, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerBlock: {
+    marginBottom: 16,
+  },
+  headline: {
+    fontFamily: 'serif',
+    fontSize: 26,
+    fontWeight: '600',
+    color: '#2B2420',
+    letterSpacing: -0.4,
+    lineHeight: 32,
+  },
+  description: {
+    fontSize: 13.5,
+    color: '#75695E',
+    marginTop: 4,
+    lineHeight: 19,
+  },
+  captureCard: {
+    backgroundColor: '#ECE4DA',
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  cameraIconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FAF7F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#2B2420',
+  },
+  cardSubtitle: {
+    fontSize: 13,
+    color: '#75695E',
+    marginTop: 4,
+    marginBottom: 8,
+    textAlign: 'center',
+    maxWidth: 290,
+    lineHeight: 18,
+  },
+  guideTriggerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 16,
+  },
+  guideTriggerText: {
+    fontSize: 12,
+    color: '#7A4655',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  actionButtonsStack: {
+    width: '100%',
+    gap: 10,
+  },
+  primaryActionButton: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#7A4655',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  primaryActionText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  secondaryActionButton: {
+    width: '100%',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  secondaryActionText: {
+    color: '#2B2420',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  guidanceSection: {
+    width: '100%',
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(220, 210, 196, 0.7)',
+  },
+  guidanceHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingHorizontal: 2,
+  },
+  guidanceLabel: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#75695E',
+    letterSpacing: 0.8,
+  },
+  guidanceDetailsLink: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#7A4655',
+    textDecorationLine: 'underline',
+  },
+  guidanceGrid: {
+    flexDirection: 'row',
+    gap: 8,
+    width: '100%',
+  },
+  guidanceCard: {
+    flex: 1,
+    backgroundColor: '#FAF7F2',
+    borderRadius: 14,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(220, 210, 196, 0.6)',
+  },
+  guidanceImageWrapper: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginBottom: 6,
+    backgroundColor: '#ECE4DA',
+    position: 'relative',
+  },
+  guidanceImage: {
+    width: '100%',
+    height: '100%',
+  },
+  yesBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    backgroundColor: '#8C9B7E',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  noBadge: {
+    position: 'absolute',
+    top: 6,
+    left: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 9999,
+    backgroundColor: '#A85A46',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  badgeLabel: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  guidanceCardTitle: {
+    fontSize: 11,
+    color: '#2B2420',
+    fontWeight: '600',
+    lineHeight: 14,
+  },
+  guidanceCardSubtitle: {
+    fontSize: 9.5,
+    color: '#75695E',
+    marginTop: 2,
+    lineHeight: 12,
+  },
+  cameraContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  videoWrapper: {
+    position: 'relative',
+    width: '100%',
+    aspectRatio: 3 / 4,
+    maxHeight: 340,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#000000',
+    marginBottom: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraOvalGuide: {
+    position: 'absolute',
+    width: 176,
+    height: 256,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 100,
+  },
+  cameraButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    width: '100%',
+  },
+  cancelCameraButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: '#FAF7F2',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  cancelCameraText: {
+    color: '#75695E',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  shutterButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#7A4655',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  shutterButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#A85A46',
+    backgroundColor: '#ECE4DA',
+    padding: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  demoLinkBox: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  demoLinkText: {
+    fontSize: 12,
+    color: '#75695E',
+    textDecorationLine: 'underline',
+  },
+  privacyBanner: {
+    backgroundColor: 'rgba(211, 218, 199, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(140, 155, 126, 0.4)',
+    borderRadius: 14,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginBottom: 20,
+  },
+  shieldIconWrapper: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(140, 155, 126, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  privacyText: {
+    fontSize: 12,
+    color: '#2B2420',
+    lineHeight: 16,
+    flex: 1,
+  },
+  footerCTA: {
+    marginTop: 'auto',
+  },
+  generateButton: {
+    width: '100%',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: '#7A4655',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  generateButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+});
+

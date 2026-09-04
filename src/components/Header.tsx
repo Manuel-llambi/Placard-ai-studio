@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { OnboardingStep } from '../types';
 
@@ -19,44 +20,94 @@ export const Header: React.FC<HeaderProps> = ({
   const canGoBack = currentStep !== 'welcome';
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-3.5 bg-[#F6F1EA]/90 backdrop-blur-md border-b border-[#DCD2C4]/40 transition-colors">
-      <div className="w-10 flex items-center">
+    <View style={styles.headerContainer}>
+      <View style={styles.sideSlot}>
         {canGoBack ? (
-          <button
+          <TouchableOpacity
             id="header-back-button"
-            onClick={onBack}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[#2B2420] hover:bg-[#ECE4DA] active:scale-95 transition-all"
-            aria-label="Volver al paso anterior"
+            onPress={onBack}
+            activeOpacity={0.7}
+            style={styles.iconButton}
+            accessibilityLabel="Volver al paso anterior"
           >
-            <ArrowLeft className="w-5 h-5 stroke-[1.75]" />
-          </button>
+            <ArrowLeft size={20} color="#2B2420" strokeWidth={1.75} />
+          </TouchableOpacity>
         ) : (
-          <button
+          <TouchableOpacity
             id="header-reset-button"
-            onClick={onReset}
-            title="Reiniciar prueba"
-            className="w-9 h-9 rounded-full flex items-center justify-center text-[#75695E] hover:bg-[#ECE4DA] hover:text-[#2B2420] active:scale-95 transition-all"
-            aria-label="Reiniciar"
+            onPress={onReset}
+            activeOpacity={0.7}
+            style={styles.iconButton}
+            accessibilityLabel="Reiniciar"
           >
-            <RotateCcw className="w-4 h-4 stroke-[1.75]" />
-          </button>
+            <RotateCcw size={16} color="#75695E" strokeWidth={1.75} />
+          </TouchableOpacity>
         )}
-      </div>
+      </View>
 
-      <div className="flex flex-col items-center justify-center text-center">
-        <h1 className="font-serif text-[22px] tracking-tight font-medium text-[#2B2420] leading-tight">
-          Placard
-        </h1>
+      <View style={styles.centerSlot}>
+        <Text style={styles.title}>Placard</Text>
         {subtitle && (
-          <span className="text-[10px] tracking-[0.14em] uppercase font-semibold text-[#75695E] mt-0.5">
-            {subtitle}
-          </span>
+          <Text style={styles.subtitle}>{subtitle}</Text>
         )}
-      </div>
+      </View>
 
-      <div className="w-10 flex items-center justify-end">
-        <div className="w-9 h-9" />
-      </div>
-    </header>
+      <View style={[styles.sideSlot, styles.rightSlot]}>
+        <View style={styles.spacer} />
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    backgroundColor: '#F6F1EA',
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(220, 210, 196, 0.4)',
+    zIndex: 30,
+  },
+  sideSlot: {
+    width: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rightSlot: {
+    justifyContent: 'flex-end',
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerSlot: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontFamily: 'serif',
+    fontSize: 22,
+    fontWeight: '500',
+    color: '#2B2420',
+    letterSpacing: -0.3,
+  },
+  subtitle: {
+    fontSize: 10,
+    letterSpacing: 1.4,
+    textTransform: 'uppercase',
+    fontWeight: '600',
+    color: '#75695E',
+    marginTop: 2,
+  },
+  spacer: {
+    width: 36,
+    height: 36,
+  },
+});
+

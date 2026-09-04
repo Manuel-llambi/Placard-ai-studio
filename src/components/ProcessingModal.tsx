@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Sparkles, FastForward } from 'lucide-react';
 import { Garment } from '../types';
 
@@ -44,16 +45,17 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
   }, [onComplete]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F6F1EA]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
-      <div className="w-full max-w-xs flex flex-col items-center">
-        {/* Brand Loader: Animated Textile Hanger */}
-        <div className="w-24 h-24 mb-6 relative flex items-center justify-center">
-          <div className="animate-hanger-swing text-[#7A4655]">
+    <View style={styles.overlay}>
+      <View style={styles.contentBox}>
+        {/* Brand Loader: Animated Textile Hanger Icon */}
+        <View style={styles.iconContainer}>
+          <View style={styles.hangerWrapper}>
             <svg
-              className="w-20 h-20"
+              width="72"
+              height="72"
               viewBox="0 0 64 64"
               fill="none"
-              stroke="currentColor"
+              stroke="#7A4655"
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -67,46 +69,163 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
               {/* Lower garment bar notch */}
               <line x1="20" y1="46" x2="44" y2="46" strokeWidth="1.5" strokeOpacity="0.5" />
             </svg>
-          </div>
-          <div className="absolute -bottom-1 w-12 h-1 bg-[#2B2420]/10 rounded-full blur-[2px]" />
-        </div>
+          </View>
+          <View style={styles.shadowPill} />
+        </View>
 
         {/* Status text */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ECE4DA] text-[#7A4655] text-[12px] font-semibold tracking-wide uppercase mb-3">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>VTON Engine</span>
-        </div>
+        <View style={styles.badgePill}>
+          <Sparkles size={14} color="#7A4655" />
+          <Text style={styles.badgeText}>VTON ENGINE</Text>
+        </View>
 
-        <h3 className="font-serif text-[22px] font-medium text-[#2B2420] tracking-tight leading-snug mb-2">
+        <Text style={styles.title}>
           Creando tu primer look
-        </h3>
+        </Text>
 
-        <p className="text-[13px] text-[#75695E] min-h-[40px] px-2 leading-relaxed transition-all">
+        <Text style={styles.description}>
           {steps[currentStepIndex]}
-        </p>
+        </Text>
 
-        {/* Linear progress in Ciruela suave & Ciruela */}
-        <div className="w-full bg-[#ECE4DA] h-2 rounded-full overflow-hidden mt-6 mb-2.5">
-          <div
-            className="h-full bg-[#7A4655] rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
+        {/* Linear progress */}
+        <View style={styles.progressBarTrack}>
+          <View
+            style={[styles.progressBarFill, { width: `${progress}%` }]}
           />
-        </div>
+        </View>
 
-        <div className="w-full flex items-center justify-between text-[11px] font-medium text-[#75695E]">
-          <span>Calce orgánico</span>
-          <span className="font-semibold text-[#2B2420]">{progress}%</span>
-        </div>
+        <View style={styles.progressRow}>
+          <Text style={styles.progressLabel}>Calce orgánico</Text>
+          <Text style={styles.progressValue}>{progress}%</Text>
+        </View>
 
-        {/* Skip button for quick review */}
-        <button
-          onClick={onComplete}
-          className="mt-8 text-[12px] text-[#75695E] hover:text-[#7A4655] flex items-center gap-1.5 underline decoration-dotted transition-colors"
+        {/* Skip button */}
+        <TouchableOpacity
+          onPress={onComplete}
+          activeOpacity={0.7}
+          style={styles.skipButton}
         >
-          <FastForward className="w-3.5 h-3.5" />
-          <span>Acelerar resultado</span>
-        </button>
-      </div>
-    </div>
+          <FastForward size={14} color="#75695E" />
+          <Text style={styles.skipText}>Acelerar resultado</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    position: 'fixed' as any,
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    backgroundColor: 'rgba(246, 241, 234, 0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  contentBox: {
+    width: '100%',
+    maxWidth: 320,
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 96,
+    height: 96,
+    marginBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hangerWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shadowPill: {
+    position: 'absolute',
+    bottom: -4,
+    width: 48,
+    height: 4,
+    backgroundColor: 'rgba(43, 36, 32, 0.1)',
+    borderRadius: 2,
+  },
+  badgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+    backgroundColor: '#ECE4DA',
+    marginBottom: 12,
+  },
+  badgeText: {
+    color: '#7A4655',
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+  },
+  title: {
+    fontFamily: 'serif',
+    fontSize: 22,
+    fontWeight: '500',
+    color: '#2B2420',
+    textAlign: 'center',
+    letterSpacing: -0.3,
+    lineHeight: 28,
+    marginBottom: 8,
+  },
+  description: {
+    fontSize: 13,
+    color: '#75695E',
+    textAlign: 'center',
+    minHeight: 40,
+    paddingHorizontal: 8,
+    lineHeight: 19,
+  },
+  progressBarTrack: {
+    width: '100%',
+    backgroundColor: '#ECE4DA',
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginTop: 24,
+    marginBottom: 10,
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#7A4655',
+    borderRadius: 4,
+  },
+  progressRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  progressLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#75695E',
+  },
+  progressValue: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#2B2420',
+  },
+  skipButton: {
+    marginTop: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  skipText: {
+    fontSize: 12,
+    color: '#75695E',
+    textDecorationLine: 'underline',
+  },
+});
+
