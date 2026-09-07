@@ -67,6 +67,9 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
             onPress={onSignUpModal}
             activeOpacity={0.85}
             style={styles.saveWardrobeBtn}
+            accessibilityLabel="Guardar placard, crear cuenta"
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <Text style={styles.saveWardrobeBtnText}>Guardar placard</Text>
           </TouchableOpacity>
@@ -110,6 +113,9 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
                 styles.chip,
                 selectedOccasion === chip ? styles.chipActive : styles.chipInactive,
               ]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: selectedOccasion === chip }}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             >
               <Text
                 style={[
@@ -138,6 +144,9 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
                 styles.chip,
                 selectedCategory === chip.label ? styles.chipActive : styles.chipInactive,
               ]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: selectedCategory === chip.label }}
+              hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
             >
               <Text
                 style={[
@@ -272,6 +281,10 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
           onPress={() => setActiveTab('looks')}
           activeOpacity={0.7}
           style={styles.navItem}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'looks' }}
+          accessibilityLabel="Ver tus looks"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
           <FolderHeart
             size={20}
@@ -302,6 +315,10 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
           onPress={() => setActiveTab('placard')}
           activeOpacity={0.7}
           style={styles.navItem}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'placard' }}
+          accessibilityLabel="Ver tu placard"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
           <Shirt
             size={20}
@@ -489,8 +506,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(43, 36, 32, 0.25)',
-  },
+    // Bottom-weighted scrim so the white caption stays legible over any photo,
+    // instead of a flat tint that can wash out on light garments.
+    backgroundImage:
+      'linear-gradient(to top, rgba(43, 36, 32, 0.75) 0%, rgba(43, 36, 32, 0.2) 45%, rgba(43, 36, 32, 0) 75%)',
+  } as any,
   heartButton: {
     position: 'absolute',
     top: 10,

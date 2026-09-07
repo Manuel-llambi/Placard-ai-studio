@@ -42,7 +42,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <View style={styles.card}>
+          <View style={styles.card} accessibilityRole="alert">
             <View style={styles.iconCircle}>
               <AlertCircle size={24} color="#7A4655" />
             </View>
@@ -56,6 +56,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
               onPress={this.handleReset}
               activeOpacity={0.85}
               style={styles.resetButton}
+              accessibilityLabel="Recargar aplicación"
+              accessibilityRole="button"
             >
               <RefreshCw size={16} color="#FFFFFF" />
               <Text style={styles.resetButtonText}>Recargar aplicación</Text>

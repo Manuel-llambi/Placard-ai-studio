@@ -95,6 +95,8 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
           activeOpacity={0.8}
           style={styles.topRightButton}
           accessibilityLabel="Ver comparativa antes / después"
+          accessibilityRole="button"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
           <Maximize2 size={16} color="#2B2420" />
         </TouchableOpacity>
@@ -106,6 +108,8 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
             activeOpacity={0.8}
             style={styles.actionCircleButton}
             accessibilityLabel="Compartir look"
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <Share2 size={16} color="#75695E" />
           </TouchableOpacity>
@@ -117,7 +121,10 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
               styles.actionCircleButton,
               isFavorite && styles.favoriteActiveButton,
             ]}
-            accessibilityLabel="Guardar en favoritos"
+            accessibilityLabel={isFavorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isFavorite }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <Heart
               size={16}
@@ -147,11 +154,15 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
                 onBlur={() => setIsEditingTitle(false)}
                 onSubmitEditing={() => setIsEditingTitle(false)}
                 style={styles.titleInput}
+                accessibilityLabel="Nombre del look"
               />
               <TouchableOpacity
                 onPress={() => setIsEditingTitle(false)}
                 activeOpacity={0.8}
                 style={styles.saveTitleButton}
+                accessibilityLabel="Guardar nombre del look"
+                accessibilityRole="button"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Check size={14} color="#FFFFFF" strokeWidth={2.5} />
               </TouchableOpacity>
@@ -167,6 +178,8 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
                 activeOpacity={0.7}
                 style={styles.editIconButton}
                 accessibilityLabel="Editar nombre del look"
+                accessibilityRole="button"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Pencil size={14} color="#75695E" />
               </TouchableOpacity>

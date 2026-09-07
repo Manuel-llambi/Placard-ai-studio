@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   StyleSheet,
 } from 'react-native';
@@ -18,9 +19,19 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
   const [sliderPos, setSliderPos] = useState(50);
   const [activeTab, setActiveTab] = useState<'slider' | 'sideBySide'>('slider');
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <View style={styles.overlay}>
-      <View style={styles.modalCard}>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.overlay}>
+        <TouchableWithoutFeedback onPress={() => {}}>
+          <View style={styles.modalCard}>
         {/* Header */}
         <View style={styles.header}>
           <View>
@@ -35,7 +46,9 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
             onPress={onClose}
             activeOpacity={0.7}
             style={styles.closeButton}
-            accessibilityLabel="Cerrar modal"
+            accessibilityLabel="Cerrar comparativa"
+            accessibilityRole="button"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <X size={16} color="#2B2420" />
           </TouchableOpacity>
@@ -50,6 +63,9 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
               styles.tabButton,
               activeTab === 'slider' && styles.tabButtonActive,
             ]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'slider' }}
+            hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           >
             <Text
               style={[
@@ -67,6 +83,9 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
               styles.tabButton,
               activeTab === 'sideBySide' && styles.tabButtonActive,
             ]}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === 'sideBySide' }}
+            hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           >
             <Text
               style={[
@@ -187,12 +206,16 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
             onPress={onClose}
             activeOpacity={0.8}
             style={styles.footerButton}
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <Text style={styles.footerButtonText}>Cerrar comparativa</Text>
           </TouchableOpacity>
         </View>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

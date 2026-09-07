@@ -34,6 +34,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
 
   const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
   const [isLiveCameraActive, setIsLiveCameraActive] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -58,6 +59,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
   };
 
   const startLiveCamera = async () => {
+    setCameraError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment', width: { ideal: 720 }, height: { ideal: 960 } },
@@ -69,6 +71,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
       }
     } catch (err) {
       console.warn('Camera access denied or unavailable, falling back to input', err);
+      setCameraError('No pudimos acceder a la cámara. Elegí una foto de tu galería o revisá los permisos.');
       cameraInputRef.current?.click();
     }
   };
@@ -189,6 +192,9 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={stopLiveCamera}
                 activeOpacity={0.7}
                 style={styles.closeCameraButton}
+                accessibilityLabel="Cerrar cámara"
+                accessibilityRole="button"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <X size={16} color="#FFFFFF" />
               </TouchableOpacity>
@@ -200,6 +206,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={stopLiveCamera}
                 activeOpacity={0.8}
                 style={styles.cancelCameraButton}
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               >
                 <Text style={styles.cancelCameraText}>Cancelar</Text>
               </TouchableOpacity>
@@ -207,6 +214,8 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={captureLiveSnapshot}
                 activeOpacity={0.85}
                 style={styles.shutterButton}
+                accessibilityLabel="Capturar foto de la prenda"
+                accessibilityRole="button"
               >
                 <Camera size={16} color="#FFFFFF" />
                 <Text style={styles.shutterButtonText}>Capturar foto</Text>
@@ -233,6 +242,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               onPress={() => setIsGuideModalOpen(true)}
               activeOpacity={0.7}
               style={styles.guideTriggerButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Sparkles size={14} color="#7A4655" />
               <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
@@ -261,6 +271,12 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               </TouchableOpacity>
             </View>
 
+            {cameraError && (
+              <Text style={styles.errorText} accessibilityLiveRegion="polite">
+                {cameraError}
+              </Text>
+            )}
+
             {/* Synthesized Visual Guidance inside the Card */}
             <View id="synthesized-garment-guidance" style={styles.guidanceSection}>
               <View style={styles.guidanceHeader}>
@@ -270,6 +286,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 <TouchableOpacity
                   onPress={() => setIsGuideModalOpen(true)}
                   activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
                 </TouchableOpacity>
@@ -341,12 +358,15 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                     <TouchableOpacity
                       onPress={() => setIsGuideModalOpen(true)}
                       activeOpacity={0.7}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <Text style={styles.guideLink}>Ver guía</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => cameraInputRef.current?.click()}
                       activeOpacity={0.7}
+                      accessibilityLabel="Repetir foto de la prenda"
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <Text style={styles.repeatLink}>Repetir</Text>
                     </TouchableOpacity>
@@ -550,6 +570,16 @@ const styles = StyleSheet.create({
     color: '#2B2420',
     fontWeight: '600',
     fontSize: 14,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#A85A46',
+    backgroundColor: '#FAF7F2',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 12,
+    textAlign: 'center',
+    width: '100%',
   },
   guidanceSection: {
     width: '100%',

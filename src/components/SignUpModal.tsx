@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   TextInput,
   StyleSheet,
 } from 'react-native';
@@ -21,6 +22,15 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
 }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -44,13 +54,17 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
   };
 
   return (
-    <View style={styles.backdrop}>
-      <View style={styles.modalCard}>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.backdrop}>
+        <TouchableWithoutFeedback onPress={() => {}}>
+          <View style={styles.modalCard}>
         <TouchableOpacity
           onPress={onClose}
           activeOpacity={0.7}
           style={styles.closeButton}
           accessibilityLabel="Cerrar modal"
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <X size={16} color="#2B2420" />
         </TouchableOpacity>
@@ -124,6 +138,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
 
         {/* Email form */}
         <View style={styles.emailForm}>
+          <Text style={styles.inputLabel}>TU EMAIL</Text>
           <TextInput
             placeholder="camila@ejemplo.com"
             placeholderTextColor="#A79C8E"
@@ -132,6 +147,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
             keyboardType="email-address"
             autoCapitalize="none"
             style={styles.textInput}
+            accessibilityLabel="Correo electrónico"
           />
           <TouchableOpacity
             onPress={handleEmailSubmit}
@@ -141,6 +157,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
               styles.submitButton,
               (!email || isLoading) && styles.disabledButton,
             ]}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: isLoading || !email }}
           >
             <Text style={styles.submitButtonText}>Crear cuenta gratuita</Text>
           </TouchableOpacity>
@@ -152,8 +170,10 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
             Sin spam · Tus fotos nunca se comparten
           </Text>
         </View>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -281,6 +301,13 @@ const styles = StyleSheet.create({
   emailForm: {
     gap: 8,
     marginTop: 4,
+  },
+  inputLabel: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#75695E',
+    letterSpacing: 0.8,
+    marginBottom: 2,
   },
   textInput: {
     width: '100%',

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Image,
   ScrollView,
   StyleSheet,
@@ -19,11 +20,22 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <View style={styles.backdrop}>
-      <View style={styles.modalCard}>
+    <TouchableWithoutFeedback onPress={onClose}>
+      <View style={styles.backdrop}>
+        <TouchableWithoutFeedback onPress={() => {}}>
+          <View style={styles.modalCard}>
         {/* Sticky Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -45,6 +57,9 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
             onPress={onClose}
             activeOpacity={0.7}
             style={styles.closeButton}
+            accessibilityLabel="Cerrar guía de foto"
+            accessibilityRole="button"
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <X size={16} color="#75695E" />
           </TouchableOpacity>
@@ -162,8 +177,10 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
             </View>
           </View>
         </ScrollView>
+          </View>
+        </TouchableWithoutFeedback>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 

@@ -77,6 +77,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
       }
     } catch (err) {
       console.warn('Camera access denied or unavailable, falling back to input', err);
+      setCameraError('No pudimos acceder a la cámara. Elegí una foto de tu galería o revisá los permisos.');
       cameraInputRef.current?.click();
     }
   };
@@ -196,6 +197,8 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 onPress={stopCamera}
                 activeOpacity={0.8}
                 style={styles.cancelCameraButton}
+                accessibilityLabel="Cancelar y cerrar cámara"
+                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               >
                 <Text style={styles.cancelCameraText}>Cancelar</Text>
               </TouchableOpacity>
@@ -203,6 +206,8 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 onPress={captureCameraSnapshot}
                 activeOpacity={0.85}
                 style={styles.shutterButton}
+                accessibilityLabel="Capturar foto de referencia"
+                accessibilityRole="button"
               >
                 <Camera size={16} color="#FFFFFF" />
                 <Text style={styles.shutterButtonText}>Capturar foto</Text>
@@ -229,6 +234,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
               onPress={() => setIsGuideModalOpen(true)}
               activeOpacity={0.7}
               style={styles.guideTriggerButton}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Sparkles size={14} color="#7A4655" />
               <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
@@ -266,6 +272,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 <TouchableOpacity
                   onPress={() => setIsGuideModalOpen(true)}
                   activeOpacity={0.7}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
                 </TouchableOpacity>
@@ -314,7 +321,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
       </View>
 
       {cameraError && (
-        <Text style={styles.errorText}>
+        <Text style={styles.errorText} accessibilityLiveRegion="polite">
           {cameraError}
         </Text>
       )}
@@ -325,6 +332,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           onPress={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
           activeOpacity={0.7}
           style={styles.demoLinkBox}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Text style={styles.demoLinkText}>
             ¿Querés probar rápido? Podés usar la foto de prueba de Camila
@@ -349,10 +357,22 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           onPress={onGenerate}
           disabled={!referencePhoto}
           activeOpacity={0.88}
-          style={styles.generateButton}
+          style={[
+            styles.generateButton,
+            !referencePhoto && styles.generateButtonDisabled,
+          ]}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: !referencePhoto }}
         >
-          <Sparkles size={16} color="#FAF7F2" />
-          <Text style={styles.generateButtonText}>Ver cómo te queda</Text>
+          <Sparkles size={16} color={referencePhoto ? '#FAF7F2' : '#75695E'} />
+          <Text
+            style={[
+              styles.generateButtonText,
+              !referencePhoto && styles.generateButtonTextDisabled,
+            ]}
+          >
+            Ver cómo te queda
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -770,6 +790,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
+  },
+  generateButtonDisabled: {
+    backgroundColor: '#DCD2C4',
+  },
+  generateButtonTextDisabled: {
+    color: 'rgba(117, 105, 94, 0.8)',
   },
 });
 

@@ -183,7 +183,11 @@ export default function App() {
 
         {/* Toast notifications */}
         {toastMessage && (
-          <View style={styles.toast}>
+          <View
+            style={styles.toast}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Text style={styles.toastText}>{toastMessage}</Text>
           </View>
         )}
