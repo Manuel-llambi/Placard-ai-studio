@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 24,
     fontWeight: '500',
     color: '#2B2420',
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addPromptTitle: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 14,
     fontWeight: '500',
     color: '#2B2420',
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     color: '#75695E',
   },
   nextStepTitle: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 15,
     fontWeight: '500',
     color: '#2B2420',

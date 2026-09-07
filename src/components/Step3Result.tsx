@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   mainTitle: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 27,
     fontWeight: '600',
     color: '#2B2420',
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleInput: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '500',
     color: '#2B2420',
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   lookTitleText: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '500',
     color: '#2B2420',
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardHeaderTitle: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 17,
     fontWeight: '500',
     color: '#2B2420',

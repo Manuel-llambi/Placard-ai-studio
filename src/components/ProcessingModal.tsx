@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 22,
     fontWeight: '500',
     color: '#2B2420',

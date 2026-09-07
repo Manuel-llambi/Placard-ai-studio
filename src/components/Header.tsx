@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 22,
     fontWeight: '500',
     color: '#2B2420',

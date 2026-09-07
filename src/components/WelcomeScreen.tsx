@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 28,
     fontWeight: '600',
     color: '#2B2420',

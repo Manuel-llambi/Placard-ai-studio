@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 18,
     fontWeight: '600',
     color: '#2B2420',

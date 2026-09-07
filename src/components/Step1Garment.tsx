@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headline: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 26,
     fontWeight: '600',
     color: '#2B2420',
