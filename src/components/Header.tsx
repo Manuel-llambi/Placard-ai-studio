@@ -29,6 +29,8 @@ export const Header: React.FC<HeaderProps> = ({
             activeOpacity={0.7}
             style={styles.iconButton}
             accessibilityLabel="Volver al paso anterior"
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <ArrowLeft size={20} color="#2B2420" strokeWidth={1.75} />
           </TouchableOpacity>
@@ -39,6 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
             activeOpacity={0.7}
             style={styles.iconButton}
             accessibilityLabel="Reiniciar"
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <RotateCcw size={16} color="#75695E" strokeWidth={1.75} />
           </TouchableOpacity>
@@ -91,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 22,
     fontWeight: '500',
     color: '#2B2420',

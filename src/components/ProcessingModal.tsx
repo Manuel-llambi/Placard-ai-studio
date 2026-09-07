@@ -83,12 +83,17 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
           Creando tu primer look
         </Text>
 
-        <Text style={styles.description}>
+        <Text style={styles.description} accessibilityLiveRegion="polite">
           {steps[currentStepIndex]}
         </Text>
 
         {/* Linear progress */}
-        <View style={styles.progressBarTrack}>
+        <View
+          style={styles.progressBarTrack}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 0, max: 100, now: progress }}
+          accessibilityLabel="Progreso de generación del look"
+        >
           <View
             style={[styles.progressBarFill, { width: `${progress}%` }]}
           />
@@ -104,6 +109,9 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
           onPress={onComplete}
           activeOpacity={0.7}
           style={styles.skipButton}
+          accessibilityLabel="Acelerar y ver el resultado ahora"
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <FastForward size={14} color="#75695E" />
           <Text style={styles.skipText}>Acelerar resultado</Text>
@@ -167,7 +175,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   title: {
-    fontFamily: 'serif',
+    fontFamily: 'sans-serif',
     fontSize: 22,
     fontWeight: '500',
     color: '#2B2420',

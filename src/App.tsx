@@ -96,9 +96,9 @@ export default function App() {
       case 'welcome':
         return undefined;
       case 'step1_garment':
-        return 'PASO 1 · TU PRENDA';
+        return undefined;
       case 'step2_reference':
-        return 'PASO 2 · TU FOTO';
+        return undefined;
       case 'step3_result':
         return 'TU LOOK GENERADO';
       case 'guest_wardrobe':
@@ -183,7 +183,11 @@ export default function App() {
 
         {/* Toast notifications */}
         {toastMessage && (
-          <View style={styles.toast}>
+          <View
+            style={styles.toast}
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+          >
             <Text style={styles.toastText}>{toastMessage}</Text>
           </View>
         )}
