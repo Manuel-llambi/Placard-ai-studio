@@ -33,14 +33,14 @@ export const DEMO_REFERENCE_PHOTO: ReferencePhoto = {
 
 export const GUIDE_PHOTOS = {
   asiSi: {
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop',
+    url: '/assets/guide-photos/asi-si-cuerpo-entero.jpg',
     title: 'Así sí',
-    description: 'Luz frontal suave, ropa neutra y fondo limpio.',
+    description: 'Cuerpo entero de pies a cabeza, luz pareja y ropa entallada.',
   },
   asiNo: {
-    url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=600&auto=format&fit=crop',
+    url: '/assets/guide-photos/asi-no-selfie-espejo.jpg',
     title: 'Así no',
-    description: 'Espejos sucios, celular tapando o ropa muy holgada.',
+    description: 'Selfie de espejo con el flash tapando la cara y foto cortada.',
   },
 };
 

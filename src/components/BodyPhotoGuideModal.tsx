@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     width: '100%',
-    aspectRatio: 4 / 3,
+    aspectRatio: 3 / 4,
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: '#ECE4DA',

@@ -622,7 +622,7 @@ const styles = StyleSheet.create({
   },
   guidanceImageWrapper: {
     width: '100%',
-    aspectRatio: 4 / 3,
+    aspectRatio: 3 / 4,
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 6,

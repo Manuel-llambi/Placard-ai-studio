@@ -99,7 +99,7 @@ Dos familias, roles claramente distintos: una serifa editorial con carácter par
 | Botón | 15px / línea 20px | Medium | Sans UI | Texto de botones y acciones |
 
 ### 2.2 Reglas tipográficas
-
+  
 - Sin versalitas ni mayúsculas sostenidas para labels (rompe la sutileza buscada); usar case de oración.
 - Nunca más de 2 pesos por pantalla (Regular + Medium alcanza casi siempre).
 - Line-length de texto de lectura: 55–65 caracteres incluso en mobile (usar padding generoso antes que texto edge-to-edge).

@@ -1,0 +1,67 @@
+# Component Map: H1 - Entrar a la app sin fricción de registro
+
+## Resumen de la historia
+Como usuaria que necesita decidir qué ponerse, quiero entrar a la app y llegar directo a la posibilidad de subir mis fotos, sin crear cuenta ni ingresar datos personales, para no tener que superar ninguna barrera antes de obtener valor.
+
+**Criterios de aceptación funcionales:**
+- Al ingresar a la app no se solicita login, registro, ni ningún dato personal (nombre, email, teléfono).
+- Desde la pantalla de entrada, la usuaria puede avanzar directo hacia la carga de su foto propia.
+- No existe ningún paso previo obligatorio (encuestas, permisos genéricos, onboarding de producto) antes de llegar a la carga de fotos.
+
+**Criterios de experiencia:**
+- La pantalla de bienvenida comunica en una frase simple qué hace la app y qué se le va a pedir a continuación (dos fotos), sin tono de "app de productividad" ni de urgencia.
+- El llamado a la acción para empezar es único y evidente — no hay opciones secundarias que compitan por la atención en esta pantalla.
+
+**Casos borde:**
+- Usuaria que reabre la app tras cerrarla en este punto: debe volver a ver la misma pantalla de entrada (no hay estado de cuenta que recordar).
+- Conexión de red inexistente o muy lenta al abrir la app: la app debe comunicarlo antes de que la usuaria intente cargar una foto y falle sin explicación.
+
+**Dependencias**: ninguna. **Prioridad**: alta.
+
+## Pantallas involucradas
+- **Bienvenida / propuesta de valor** (inventario `DESIGN.md` sección 8.5) — implementada como `WelcomeScreen` en `src/components/WelcomeScreen.tsx`. Es la única pantalla que cubre H1 de punta a punta: título + propuesta de valor, diagrama "prenda + foto = look", explicación de los 3 pasos, banner de confianza, y CTA único.
+- El destino del CTA (`onStart`) es `step1_garment` (`Step1Garment`, selección/carga de prenda) según `src/App.tsx`. La historia habla de "avanzar directo hacia la carga de su foto propia": en la máquina de estados actual, la foto propia (referencia corporal) se pide en el paso siguiente, `step2_reference` (`Step2Reference`), no inmediatamente después de `WelcomeScreen`. No es un problema de Design System, pero lo marco en "Riesgos" porque afecta la lectura literal del criterio de aceptación.
+- No hay pantalla de login/registro/permisos genéricos intercalada antes de `Step1Garment` — cumple el criterio "no hay paso previo obligatorio". `SignUpModal` (`src/components/SignUpModal.tsx`) existe en el repo pero solo se monta y se abre después de `step3_result`/`guest_wardrobe`, nunca en el camino de H1.
+
+## Componentes del DS a usar
+- `WelcomeScreen` (template/pantalla, sección 8.4/8.5) — ya implementado en `src/components/WelcomeScreen.tsx`, prop `onStart: () => void`. Es el contenedor de toda la historia.
+- `Header` (molécula "header de pantalla", sección 8.2) — implementado en `src/components/Header.tsx`. En `currentStep === 'welcome'` no muestra botón "volver" (usa `RotateCcw`/reset en su lugar) y no exige ningún dato — coherente con "sin fricción de registro". Props reales: `currentStep`, `onBack`, `onReset`, `subtitle?`, `showAvatar?` (este último se declara en la interfaz pero no se desestructura ni se usa dentro del componente).
+- Botón primario (átomo, sección 8.1: "fondo Ciruela, texto Lino") — el CTA único ("Comenzar mi primera prueba") está implementado, pero **inline** dentro de `WelcomeScreen.tsx` (`styles.primaryButton` + `styles.primaryButtonText`), no como átomo `Button` reutilizable extraído. Mismo criterio de color (fondo `#7A4655` Ciruela, texto blanco).
+- Banner de privacidad (molécula, sección 8.2) — usado como banner de confianza al pie de la propuesta de valor (`styles.privacyCard`, ícono `ShieldCheck` + texto). Ver desviaciones respecto al DS en "Riesgos".
+- Spinner/loader de marca (átomo, sección 8.1 y sección 6 — "percha balanceándose") — **no está implementado en `WelcomeScreen`**, pero sí existe una versión concreta (ícono de percha animado, SVG en trazo Ciruela) dentro de `ProcessingModal` (`src/components/ProcessingModal.tsx`, líneas ~50-65), inline y no extraído como átomo reutilizable. Es la pieza más cercana del DS para resolver el caso borde de espera/conexión lenta de H1 (ver "Gaps").
+
+## Componentes a extender
+- **Banner de privacidad** — la molécula del DS está definida específicamente con fondo Salvia suave y tono de privacidad/confianza ("más info"). Para cubrir el caso borde de H1 "conexión de red inexistente o muy lenta al abrir la app", hace falta una variante informativa neutra que use el color semántico **Información** (`#748493`, sección 1.6, ya reservado en el DS para "banners de privacidad y explicaciones") en lugar de Salvia, y sin el link "más info" (no aplica a un aviso de conectividad). Es una extensión de la misma molécula, no un componente nuevo.
+- **Spinner/loader de marca** — hoy vive hardcodeado dentro de `ProcessingModal`. Para reutilizarlo en el caso borde de conexión lenta de H1 (un estado de espera breve al abrir la app, antes de habilitar el CTA) convendría extraerlo como átomo independiente y parametrizar tamaño/mensaje, en vez de duplicar el SVG.
+
+## Gaps (componentes que no existen en el DS ni en el repo)
+- **Aviso de conectividad al ingresar** — el DS no define ningún componente para comunicar "sin conexión" o "conexión muy lenta" antes de que la usuaria intente una acción que requiere red. No aparece ni en el inventario de átomos/moléculas/organismos de `DESIGN.md` ni en `src/components/`.
+  - **Resolución temporal sugerida**: combinar la extensión de "Banner de privacidad" en variante Información (fondo tintado con `#748493`, ícono lineal de conectividad + texto breve) mostrada de forma persistente arriba del contenido de `WelcomeScreen` mientras dure el problema de red, junto con el Spinner/loader de marca (extraído de `ProcessingModal`) si se necesita un estado de verificación breve. Deshabilitar el botón primario mientras el banner esté visible, en vez de dejar que la usuaria llegue a intentar subir una foto y falle sin explicación.
+- **Diagrama conceptual "prenda + foto = tu look"** (bloque `heroCard`/`conceptRow` de `WelcomeScreen.tsx`, con imágenes de 78×78, operadores `+`/`=` y una insignia de sparkle en Ciruela) — no corresponde a ninguna molécula u organismo del inventario de `DESIGN.md`. Es contenido explicativo bespoke, no una prenda de placard ni un resultado VTON real en su rol semántico habitual.
+  - **Resolución temporal sugerida**: ya está resuelto razonablemente combinando el átomo "Thumbnail de prenda" (para las dos fotos de entrada) con texto Caption y separadores visuales — no requiere un componente nuevo del DS, solo alinear el radio de esas miniaturas a `radius-lg` (ver "Riesgos") y tratar la insignia de sparkle como variante puntual, no como un átomo "Badge premium" (que tiene otro significado en el DS).
+- **Insignia numerada de paso** (los círculos "1", "2", "3" en `styles.stepBadge` dentro de `stepsCard`) — el inventario define "Stepper de onboarding" como puntos + indicador activo en Ciruela (para progreso en un carrusel), no como una lista de tres pasos con número y descripción larga. La forma actual (círculo Ciruela + número + título + descripción) no tiene un nombre en el inventario.
+  - **Resolución temporal sugerida**: no requiere una molécula nueva; se puede seguir resolviendo combinando Divider (línea 1px Niebla, ya usado como `stepDivider`) + texto H3/Body M/Caption + un círculo pequeño en Ciruela, dejando claro que es una variante de contenido informativo y no el "Stepper de onboarding" formal del DS (que se reserva para progreso de carrusel).
+
+## Tokens relevantes
+- **Colores**: Lino (fondo primario de `WelcomeScreen`), Grafito (texto principal del título y de los pasos), Piedra (subtítulo y texto secundario), Ciruela (CTA primario, insignias de paso, acento del texto "Tu look", ver riesgo de acumulación de acento), Salvia / Salvia suave (ícono y fondo del banner de confianza), Información `#748493` (propuesto para la extensión de banner de conectividad, no usado hoy).
+- **Spacing**: margen lateral de pantalla 20px (`paddingHorizontal: 20` en `WelcomeScreen`, correcto); escala 4·8·12·16·24·32 presente en gaps y paddings internos de las cards.
+- **Tipografía**: el DS reserva Display/H1 en serifa editorial para "momentos" como el onboarding/bienvenida (sección 2, fila "Display" y "H1"). El título de `WelcomeScreen` usa actualmente `fontFamily: 'sans-serif'` a 28px — ver "Riesgos".
+- **Radios / sombra**: `heroCard` y `stepsCard` usan radios 18–20px (cercanos a `radius-lg`/20px, correcto para cards); las imágenes del diagrama conceptual usan `borderRadius: 14` (`radius-md`) en vez de `radius-lg` (20px) que el DS pide para "Thumbnail de prenda" (sección 8.1). El CTA primario usa `borderRadius: 14` (`radius-md`), correcto para "botones principales" según sección 3.2.
+- **Movimiento**: sección 6 pide easing `ease-out` 200–280ms para transiciones de UI y "sin bounce" en press de selección; no hay animación de entrada definida hoy en `WelcomeScreen` — no es un requisito funcional de H1, pero al ser la primera pantalla del producto sería el lugar natural para el único fade/transición discreta que marca el tono del sistema.
+
+## Patrones de interacción
+- **CTA único, sin opciones secundarias**: resuelto correctamente — `WelcomeScreen` solo expone un botón primario (`onStart`), sin botones secundarios/terciarios compitiendo, cumpliendo el criterio de experiencia de H1 al pie de la letra.
+- **Sin bottom sheet ni modal bloqueante**: correcto para H1 — no hay ningún bottom sheet de acción ni modal que se interponga antes de llegar al flujo de carga de fotos, coherente con "no hay paso previo obligatorio". `SignUpModal` no se monta en este tramo del flujo.
+- **Estado persistente entre reaperturas**: el caso borde "usuaria reabre la app y ve la misma pantalla de entrada" no requiere ningún componente del DS — se resuelve por ausencia de estado persistido (`useState` en `App.tsx` sin storage), es responsabilidad de arquitectura de estado, no de UI.
+- **Aviso de conectividad**: sin patrón definido en el DS (ver "Gaps"). El patrón de movimiento de sección 6 ("Loaders: nunca un spinner circular genérico") aplicaría igual si se agrega un estado de verificación de red.
+
+## Componentes transversales de esta historia
+- `WelcomeScreen`, `Header` — presentes en toda la pantalla de entrada.
+- Botón primario (inline en `WelcomeScreen`) — es el único punto de interacción funcional de H1.
+
+## Riesgos / inconsistencias con el DS detectadas
+- **Serifa editorial no usada donde el DS la pide**: la sección 2 de `DESIGN.md` reserva Display/H1 (serifa editorial) explícitamente para "pantallas de onboarding" y "hero de onboarding". El título de `WelcomeScreen` usa `fontFamily: 'sans-serif'` a 28px. Según el historial de git (`e9aeb64 style(ui): switch screen titles from serif to sans-serif`), este es un cambio deliberado y reciente, no un descuido — pero deja el código en contradicción directa con `docs/DESIGN.md` tal como está redactado hoy. Si el cambio a sans-serif es la decisión final, `DESIGN.md` sección 2 debería actualizarse para no seguir prescribiendo serifa en esta pantalla.
+- **Más de un acento fuerte de Ciruela compitiendo en la misma pantalla**: la regla 80/15/5 (sección 1.7) y la regla explícita de "1 acento fuerte por pantalla" (sección 1.3) se ven tensionadas en `WelcomeScreen`: Ciruela aparece con fondo sólido en el CTA primario, en las tres insignias numeradas de paso (`stepBadge`), en la insignia de sparkle del diagrama conceptual, y como color de texto acentuado ("Tu look"). Son cuatro usos de Ciruela sólido/fuerte simultáneos en una sola pantalla, no uno. Vale la pena revisar si las insignias de paso y el sparkle deberían bajar a Ciruela suave para dejar el acento fuerte reservado únicamente al CTA.
+- **Radio de imágenes del diagrama conceptual no coincide con el token de "Thumbnail de prenda"**: las miniaturas de 78×78 en el diagrama usan `borderRadius: 14` (`radius-md`) en vez de `radius-lg` (20px), que es el radio que el DS asigna a "Thumbnail de prenda" y a los contenedores de imagen "importantes" (sección 3.2 y sección 5).
+- **Orden de pantallas vs. lectura literal del criterio de aceptación**: H1 dice "la usuaria puede avanzar directo hacia la carga de su foto propia" desde la pantalla de entrada. En la implementación actual, el CTA de `WelcomeScreen` lleva a `Step1Garment` (carga de prenda), y la foto propia (referencia corporal) se pide un paso después, en `Step2Reference`. No es una inconsistencia de Design System (ambas pantallas existen y son coherentes visualmente), pero es una discrepancia entre el copy de la historia ("carga de su foto propia") y el orden real del flujo — no pude resolverla con confianza sin una aclaración de producto, así que la dejo señalada en vez de asumir cuál pantalla es la "correcta".
+- **Banner de confianza no sigue exactamente la spec de "Banner de privacidad"**: el fondo real (`#FAF7F2` con ícono en `rgba(140, 155, 126, 0.15)`) no es el token exacto "Salvia suave" (`#D3DAC7`) que define la sección 1.4/8.2 para esta molécula, y no incluye el link "más info" que el inventario describe como parte del componente. Puede ser intencional para esta instancia (mensaje de confianza corto, no una explicación de privacidad completa como en H2), pero queda marcado por si se espera consistencia estricta con la spec.
