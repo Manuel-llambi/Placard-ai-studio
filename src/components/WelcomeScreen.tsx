@@ -1,10 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Plus, Sparkles } from 'lucide-react';
+import { SAMPLE_GARMENTS, DEMO_REFERENCE_PHOTO, SAMPLE_VTON_RESULTS } from '../data/samples';
 
 interface WelcomeScreenProps {
   onStart: () => void;
 }
+
+// Reference assets for the "how it works" concept diagram below —
+// same mock dataset the rest of the flow uses, not new imagery.
+const conceptGarment = SAMPLE_GARMENTS[0];
+const conceptResult = SAMPLE_VTON_RESULTS['blazer-arena'];
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onStart,
@@ -21,32 +27,53 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         </Text>
       </View>
 
-      {/* Hero Visual Card showing the VTON Concept */}
+      {/* Hero Visual Card: a literal "garment + your photo = your look" diagram,
+          so the AI concept reads instantly instead of relying on a single mood photo. */}
       <View style={styles.heroCard}>
-        <View style={styles.imageWrapper}>
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=900&auto=format&fit=crop' }}
-            accessibilityLabel="Placard de prendas en lino y luz natural"
-            style={styles.heroImage}
-            resizeMode="cover"
-          />
-          <View style={styles.gradientOverlay} />
+        <Text style={styles.heroLabel}>PRENDA + FOTO = TU LOOK</Text>
 
-          <View style={styles.heroContent}>
-            <View style={styles.garmentBadge}>
-              <View style={styles.garmentThumb}>
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=200&auto=format&fit=crop' }}
-                  accessibilityLabel="Prenda"
-                  style={styles.thumbImage}
-                  resizeMode="cover"
-                />
-              </View>
-              <View>
-                <Text style={styles.badgeTitle}>Prenda + Tu silueta</Text>
-                <Text style={styles.badgeSubtitle}>Calce virtual orgánico</Text>
+        <View style={styles.conceptRow}>
+          <View style={styles.conceptItem}>
+            <Image
+              source={{ uri: conceptGarment.imageUrl }}
+              accessibilityLabel="Foto de la prenda que subís"
+              style={styles.conceptImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.conceptCaption}>Tu prenda</Text>
+          </View>
+
+          <View style={styles.operatorWrap}>
+            <Plus size={16} color="#A79C8E" strokeWidth={2.5} />
+          </View>
+
+          <View style={styles.conceptItem}>
+            <Image
+              source={{ uri: DEMO_REFERENCE_PHOTO.imageUrl }}
+              accessibilityLabel="Foto de referencia de cuerpo entero"
+              style={styles.conceptImage}
+              resizeMode="cover"
+            />
+            <Text style={styles.conceptCaption}>Tu foto</Text>
+          </View>
+
+          <View style={styles.operatorWrap}>
+            <Text style={styles.operatorEquals}>=</Text>
+          </View>
+
+          <View style={styles.conceptItem}>
+            <View style={styles.resultImageWrap}>
+              <Image
+                source={{ uri: conceptResult.resultImageUrl }}
+                accessibilityLabel="Resultado generado combinando ambas fotos"
+                style={styles.conceptImage}
+                resizeMode="cover"
+              />
+              <View style={styles.sparkleBadge}>
+                <Sparkles size={10} color="#FFFFFF" />
               </View>
             </View>
+            <Text style={[styles.conceptCaption, styles.conceptCaptionAccent]}>Tu look</Text>
           </View>
         </View>
       </View>
@@ -167,63 +194,74 @@ const styles = StyleSheet.create({
   },
   heroCard: {
     borderRadius: 20,
-    overflow: 'hidden',
     backgroundColor: '#ECE4DA',
     borderWidth: 1,
     borderColor: 'rgba(220, 210, 196, 0.6)',
     marginBottom: 20,
-  },
-  imageWrapper: {
-    width: '100%',
-    height: 200,
-    position: 'relative',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(43, 36, 32, 0.35)',
-  },
-  heroContent: {
-    position: 'absolute',
-    bottom: 12,
-    left: 12,
-    right: 12,
-  },
-  garmentBadge: {
-    flexDirection: 'row',
+    paddingVertical: 18,
+    paddingHorizontal: 14,
     alignItems: 'center',
+  },
+  heroLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    color: '#75695E',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  conceptRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
     gap: 8,
   },
-  garmentThumb: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  conceptItem: {
+    alignItems: 'center',
+    width: 78,
+  },
+  conceptImage: {
+    width: 78,
+    height: 78,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.7)',
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(220, 210, 196, 0.8)',
   },
-  thumbImage: {
-    width: '100%',
-    height: '100%',
+  operatorWrap: {
+    height: 78,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  badgeTitle: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
-    lineHeight: 16,
+  operatorEquals: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#A79C8E',
   },
-  badgeSubtitle: {
-    color: 'rgba(250, 247, 242, 0.8)',
-    fontSize: 10,
-    lineHeight: 14,
+  resultImageWrap: {
+    position: 'relative',
+  },
+  sparkleBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#7A4655',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ECE4DA',
+  },
+  conceptCaption: {
+    fontSize: 10.5,
+    fontWeight: '500',
+    color: '#75695E',
+    marginTop: 6,
+  },
+  conceptCaptionAccent: {
+    color: '#7A4655',
+    fontWeight: '700',
   },
   stepsCard: {
     backgroundColor: 'rgba(236, 228, 218, 0.7)',
