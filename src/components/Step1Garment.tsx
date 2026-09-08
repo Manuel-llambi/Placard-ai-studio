@@ -291,18 +291,6 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               Nuestra IA recortará el fondo automáticamente conservando texturas y caída.
             </Text>
 
-            {/* Direct Trigger to Open Guide Modal */}
-            <TouchableOpacity
-              id="btn-open-garment-tips"
-              onPress={() => setIsGuideModalOpen(true)}
-              activeOpacity={0.7}
-              style={styles.guideTriggerButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Sparkles size={14} color="#7A4655" />
-              <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
-            </TouchableOpacity>
-
             {/* Main Action Buttons */}
             <View style={styles.actionButtonsStack}>
               <TouchableOpacity
@@ -358,8 +346,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
 
                     {qualityCheck.status === 'rejected' && (
                       <View style={styles.detectedRow}>
-                        <View style={styles.issueDot} />
-                        <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
+                        <Text style={styles.issueText}>Imagen no compatible</Text>
                       </View>
                     )}
                   </View>
@@ -794,12 +781,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#75695E',
-  },
-  issueDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#A85A46',
   },
   issueText: {
     fontSize: 10.5,

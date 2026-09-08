@@ -276,22 +276,10 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
               Nuestra IA adaptará la prenda a tu silueta real, respetando tus proporciones.
             </Text>
 
-            {/* Direct Trigger to Open Guide Modal */}
-            <TouchableOpacity
-              id="btn-open-body-tips"
-              onPress={() => setIsGuideModalOpen(true)}
-              activeOpacity={0.7}
-              style={styles.guideTriggerButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Sparkles size={14} color="#7A4655" />
-              <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
-            </TouchableOpacity>
-
             {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
             <View style={styles.privacyBanner}>
               <View style={styles.shieldIconWrapper}>
-                <ShieldCheck size={14} color="#8C9B7E" />
+                <ShieldCheck size={14} color="#4F6844" />
               </View>
               <Text style={styles.privacyText}>
                 Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
@@ -353,8 +341,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
 
                     {qualityCheck.status === 'rejected' && (
                       <View style={styles.detectedRow}>
-                        <View style={styles.issueDot} />
-                        <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
+                        <Text style={styles.issueText}>Imagen no compatible</Text>
                       </View>
                     )}
                   </View>
@@ -878,12 +865,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#75695E',
-  },
-  issueDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#A85A46',
   },
   issueText: {
     fontSize: 10.5,
