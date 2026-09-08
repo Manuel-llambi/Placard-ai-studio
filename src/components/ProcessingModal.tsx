@@ -45,7 +45,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
   }, [onComplete]);
 
   return (
-    <View style={styles.overlay}>
+    <View style={styles.overlay} accessibilityViewIsModal={true}>
       <View style={styles.contentBox}>
         {/* Brand Loader: Animated Textile Hanger Icon */}
         <View style={styles.iconContainer}>
@@ -59,6 +59,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
               strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               {/* Hook */}
               <path d="M32 14c0-4.418 3.582-8 8-8s8 3.582 8 8c0 3.5-2.2 6.5-5.5 7.5L32 24" />
@@ -113,7 +114,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
           accessibilityRole="button"
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <FastForward size={14} color="#75695E" />
+          <FastForward size={14} color="#706459" />
           <Text style={styles.skipText}>Acelerar resultado</Text>
         </TouchableOpacity>
       </View>
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     textAlign: 'center',
     minHeight: 40,
     paddingHorizontal: 8,
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#75695E',
+    color: '#706459',
   },
   progressValue: {
     fontSize: 11,
@@ -232,7 +233,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     textDecorationLine: 'underline',
   },
 });

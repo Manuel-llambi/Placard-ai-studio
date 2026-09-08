@@ -46,7 +46,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
             <View style={styles.iconCircle}>
               <AlertCircle size={24} color="#7A4655" />
             </View>
-            <Text style={styles.title}>
+            <Text style={styles.title} accessibilityRole="header">
               Algo inesperado ocurrió
             </Text>
             <Text style={styles.description}>
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     marginBottom: 20,
     textAlign: 'center',
     lineHeight: 18,

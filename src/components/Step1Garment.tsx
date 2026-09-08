@@ -144,7 +144,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
 
       {/* Headline & Description */}
       <View style={styles.headerBlock}>
-        <Text style={styles.headline}>
+        <Text style={styles.headline} accessibilityRole="header">
           Primero, una prenda que ames
         </Text>
         <Text style={styles.description}>
@@ -163,6 +163,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 autoPlay
                 playsInline
                 muted
+                aria-label="Vista previa de la cámara en vivo"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
 
@@ -176,6 +177,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                   stroke="rgba(255,255,255,0.7)"
                   strokeWidth="1.5"
                   strokeDasharray="3 3"
+                  aria-hidden="true"
                 >
                   <path d="M50 20c-5-7-2-12 4-12 5 0 6 4 2 8l-6 4" />
                   <path d="M15 45L50 20l35 25H15z" />
@@ -206,6 +208,8 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={stopLiveCamera}
                 activeOpacity={0.8}
                 style={styles.cancelCameraButton}
+                accessibilityRole="button"
+                accessibilityLabel="Cancelar y cerrar cámara"
                 hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               >
                 <Text style={styles.cancelCameraText}>Cancelar</Text>
@@ -242,6 +246,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               onPress={() => setIsGuideModalOpen(true)}
               activeOpacity={0.7}
               style={styles.guideTriggerButton}
+              accessibilityRole="button"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Sparkles size={14} color="#7A4655" />
@@ -255,6 +260,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={startLiveCamera}
                 activeOpacity={0.85}
                 style={styles.primaryActionButton}
+                accessibilityRole="button"
               >
                 <Camera size={16} color="#FFFFFF" />
                 <Text style={styles.primaryActionText}>Tomar foto a una prenda</Text>
@@ -265,8 +271,9 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 onPress={() => fileInputRef.current?.click()}
                 activeOpacity={0.85}
                 style={styles.secondaryActionButton}
+                accessibilityRole="button"
               >
-                <ImageIcon size={16} color="#75695E" />
+                <ImageIcon size={16} color="#706459" />
                 <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
               </TouchableOpacity>
             </View>
@@ -286,6 +293,8 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 <TouchableOpacity
                   onPress={() => setIsGuideModalOpen(true)}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver más detalles sobre cómo fotografiar tu prenda"
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
@@ -358,6 +367,8 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                     <TouchableOpacity
                       onPress={() => setIsGuideModalOpen(true)}
                       activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel="Ver guía de foto de la prenda"
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
                       <Text style={styles.guideLink}>Ver guía</Text>
@@ -365,6 +376,7 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                     <TouchableOpacity
                       onPress={() => cameraInputRef.current?.click()}
                       activeOpacity={0.7}
+                      accessibilityRole="button"
                       accessibilityLabel="Repetir foto de la prenda"
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                     >
@@ -396,6 +408,9 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
             styles.continueButton,
             selectedGarment ? styles.continueButtonEnabled : styles.continueButtonDisabled,
           ]}
+          accessibilityRole="button"
+          accessibilityLabel="Continuar a mi foto de referencia"
+          accessibilityState={{ disabled: !selectedGarment }}
         >
           <Text
             style={[
@@ -485,7 +500,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 6,
     lineHeight: 20,
   },
@@ -514,7 +529,7 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 4,
     marginBottom: 8,
     textAlign: 'center',
@@ -598,7 +613,7 @@ const styles = StyleSheet.create({
   guidanceLabel: {
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#75695E',
+    color: '#706459',
     letterSpacing: 0.8,
   },
   guidanceDetailsLink: {
@@ -670,7 +685,7 @@ const styles = StyleSheet.create({
   },
   guidanceCardSubtitle: {
     fontSize: 9.5,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
     lineHeight: 12,
   },
@@ -722,7 +737,7 @@ const styles = StyleSheet.create({
   },
   uploadedDesc: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
   },
   uploadedActions: {
@@ -737,7 +752,7 @@ const styles = StyleSheet.create({
   },
   repeatLink: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     textDecorationLine: 'underline',
   },
   validationRow: {
@@ -815,7 +830,7 @@ const styles = StyleSheet.create({
     borderColor: '#DCD2C4',
   },
   cancelCameraText: {
-    color: '#75695E',
+    color: '#706459',
     fontSize: 13,
     fontWeight: '500',
   },

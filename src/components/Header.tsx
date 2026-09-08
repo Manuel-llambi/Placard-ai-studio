@@ -44,13 +44,13 @@ export const Header: React.FC<HeaderProps> = ({
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
-            <RotateCcw size={16} color="#75695E" strokeWidth={1.75} />
+            <RotateCcw size={16} color="#706459" strokeWidth={1.75} />
           </TouchableOpacity>
         )}
       </View>
 
       <View style={styles.centerSlot}>
-        <Text style={styles.title}>Placard</Text>
+        <Text style={styles.title} accessibilityRole="header">Placard</Text>
         {subtitle && (
           <Text style={styles.subtitle}>{subtitle}</Text>
         )}
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.4,
     textTransform: 'uppercase',
     fontWeight: '600',
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
   },
   spacer: {

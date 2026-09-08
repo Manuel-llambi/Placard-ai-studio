@@ -37,7 +37,7 @@ export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.backdrop}>
         <TouchableWithoutFeedback onPress={() => {}}>
-          <View style={styles.modalCard}>
+          <View style={styles.modalCard} accessibilityViewIsModal={true}>
         {/* Sticky Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -48,7 +48,7 @@ export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
               <Text style={styles.categoryLabel}>
                 PRENDA PROPIA · GUÍA DE FOTO
               </Text>
-              <Text style={styles.title}>
+              <Text style={styles.title} accessibilityRole="header">
                 Cómo sacar la foto perfecta
               </Text>
             </View>
@@ -63,7 +63,7 @@ export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
             accessibilityRole="button"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <X size={16} color="#75695E" />
+            <X size={16} color="#706459" />
           </TouchableOpacity>
         </View>
 
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   introText: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     lineHeight: 18,
   },
   comparisonGrid: {
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   cardCaptionDesc: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     lineHeight: 15,
   },
   indicationsBox: {
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   indicationsHeading: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#75695E',
+    color: '#706459',
     letterSpacing: 0.8,
   },
   indicationRow: {
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   indicationDesc: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
     lineHeight: 16,
   },

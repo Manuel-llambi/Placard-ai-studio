@@ -169,7 +169,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
 
       {/* Headline & Description */}
       <View style={styles.headerBlock}>
-        <Text style={styles.headline}>
+        <Text style={styles.headline} accessibilityRole="header">
           Ahora, tu foto de referencia
         </Text>
         <Text style={styles.description}>
@@ -187,6 +187,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 ref={videoRef}
                 playsInline
                 muted
+                aria-label="Vista previa de la cámara en vivo"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
               <View style={styles.cameraOvalGuide} />
@@ -197,6 +198,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 onPress={stopCamera}
                 activeOpacity={0.8}
                 style={styles.cancelCameraButton}
+                accessibilityRole="button"
                 accessibilityLabel="Cancelar y cerrar cámara"
                 hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               >
@@ -234,6 +236,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
               onPress={() => setIsGuideModalOpen(true)}
               activeOpacity={0.7}
               style={styles.guideTriggerButton}
+              accessibilityRole="button"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Sparkles size={14} color="#7A4655" />
@@ -247,6 +250,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 onPress={startLiveCamera}
                 activeOpacity={0.85}
                 style={styles.primaryActionButton}
+                accessibilityRole="button"
               >
                 <Camera size={16} color="#FFFFFF" />
                 <Text style={styles.primaryActionText}>Tomar foto a mi cuerpo</Text>
@@ -257,8 +261,9 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 onPress={() => fileInputRef.current?.click()}
                 activeOpacity={0.85}
                 style={styles.secondaryActionButton}
+                accessibilityRole="button"
               >
-                <ImageIcon size={16} color="#75695E" />
+                <ImageIcon size={16} color="#706459" />
                 <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
               </TouchableOpacity>
             </View>
@@ -272,6 +277,8 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 <TouchableOpacity
                   onPress={() => setIsGuideModalOpen(true)}
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel="Ver más detalles sobre cómo fotografiar tu cuerpo"
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
@@ -332,6 +339,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           onPress={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
           activeOpacity={0.7}
           style={styles.demoLinkBox}
+          accessibilityRole="button"
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Text style={styles.demoLinkText}>
@@ -364,7 +372,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           accessibilityRole="button"
           accessibilityState={{ disabled: !referencePhoto }}
         >
-          <Sparkles size={16} color={referencePhoto ? '#FAF7F2' : '#75695E'} />
+          <Sparkles size={16} color={referencePhoto ? '#FAF7F2' : '#706459'} />
           <Text
             style={[
               styles.generateButtonText,
@@ -408,7 +416,7 @@ const styles = StyleSheet.create({
   indicatorLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#75695E',
+    color: '#706459',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -459,7 +467,7 @@ const styles = StyleSheet.create({
   },
   garmentStatusLabel: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
@@ -490,7 +498,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 13.5,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 4,
     lineHeight: 19,
   },
@@ -519,7 +527,7 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 4,
     marginBottom: 8,
     textAlign: 'center',
@@ -593,7 +601,7 @@ const styles = StyleSheet.create({
   guidanceLabel: {
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#75695E',
+    color: '#706459',
     letterSpacing: 0.8,
   },
   guidanceDetailsLink: {
@@ -665,7 +673,7 @@ const styles = StyleSheet.create({
   },
   guidanceCardSubtitle: {
     fontSize: 9.5,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
     lineHeight: 12,
   },
@@ -708,7 +716,7 @@ const styles = StyleSheet.create({
     borderColor: '#DCD2C4',
   },
   cancelCameraText: {
-    color: '#75695E',
+    color: '#706459',
     fontSize: 13,
     fontWeight: '500',
   },
@@ -743,7 +751,7 @@ const styles = StyleSheet.create({
   },
   demoLinkText: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     textDecorationLine: 'underline',
   },
   privacyBanner: {

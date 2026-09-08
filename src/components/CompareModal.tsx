@@ -31,14 +31,14 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.overlay}>
         <TouchableWithoutFeedback onPress={() => {}}>
-          <View style={styles.modalCard}>
+          <View style={styles.modalCard} accessibilityViewIsModal={true}>
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.headerSubtitle}>
               Comparativa de calce virtual
             </Text>
-            <Text style={styles.headerTitle}>
+            <Text style={styles.headerTitle} accessibilityRole="header">
               {result.lookTitle}
             </Text>
           </View>
@@ -55,7 +55,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
         </View>
 
         {/* View mode toggle */}
-        <View style={styles.tabBar}>
+        <View style={styles.tabBar} accessibilityRole="tablist">
           <TouchableOpacity
             onPress={() => setActiveTab('slider')}
             activeOpacity={0.7}
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#75695E',
+    color: '#706459',
   },
   tabButtonTextActive: {
     color: '#FFFFFF',
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   colTitle: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#75695E',
+    color: '#706459',
     marginBottom: 4,
     textAlign: 'center',
   },
@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
   },
   fitNoteText: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     textAlign: 'center',
   },
   footer: {

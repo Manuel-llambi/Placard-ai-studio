@@ -19,7 +19,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
     <View style={styles.container}>
       {/* Main Title & Value Prop */}
       <View style={styles.header}>
-        <Text style={styles.title}>
+        <Text style={styles.title} accessibilityRole="header">
           Descubrí cómo te queda lo que ya tenés
         </Text>
         <Text style={styles.subtitle}>
@@ -44,7 +44,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </View>
 
           <View style={styles.operatorWrap}>
-            <Plus size={16} color="#A79C8E" strokeWidth={2.5} />
+            <Plus size={16} color="#706459" strokeWidth={2.5} />
           </View>
 
           <View style={styles.conceptItem}>
@@ -150,6 +150,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           onPress={onStart}
           activeOpacity={0.88}
           style={styles.primaryButton}
+          accessibilityRole="button"
+          accessibilityLabel="Comenzar mi primera prueba"
         >
           <Text style={styles.primaryButtonText}>Comenzar mi primera prueba</Text>
           <ArrowRight size={16} color="#FFFFFF" />
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 8,
     textAlign: 'center',
     lineHeight: 21,
@@ -206,7 +208,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: '#75695E',
+    color: '#706459',
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -235,7 +237,7 @@ const styles = StyleSheet.create({
   operatorEquals: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#A79C8E',
+    color: '#706459',
   },
   resultImageWrap: {
     position: 'relative',
@@ -256,7 +258,7 @@ const styles = StyleSheet.create({
   conceptCaption: {
     fontSize: 10.5,
     fontWeight: '500',
-    color: '#75695E',
+    color: '#706459',
     marginTop: 6,
   },
   conceptCaptionAccent: {
@@ -275,7 +277,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.8,
-    color: '#75695E',
+    color: '#706459',
     marginBottom: 12,
   },
   stepsList: {
@@ -311,7 +313,7 @@ const styles = StyleSheet.create({
   },
   stepDescription: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     lineHeight: 17,
     marginTop: 2,
   },

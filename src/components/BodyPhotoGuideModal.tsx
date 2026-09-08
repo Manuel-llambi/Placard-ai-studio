@@ -35,7 +35,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
     <TouchableWithoutFeedback onPress={onClose}>
       <View style={styles.backdrop}>
         <TouchableWithoutFeedback onPress={() => {}}>
-          <View style={styles.modalCard}>
+          <View style={styles.modalCard} accessibilityViewIsModal={true}>
         {/* Sticky Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -46,7 +46,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
               <Text style={styles.categoryLabel}>
                 FOTO DE REFERENCIA · GUÍA DE CUERPO
               </Text>
-              <Text style={styles.title}>
+              <Text style={styles.title} accessibilityRole="header">
                 Cómo sacar la foto perfecta
               </Text>
             </View>
@@ -61,7 +61,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
             accessibilityRole="button"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <X size={16} color="#75695E" />
+            <X size={16} color="#706459" />
           </TouchableOpacity>
         </View>
 
@@ -155,7 +155,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
 
               <View style={styles.tipRow}>
                 <View style={styles.tipIconBox}>
-                  <User size={16} color="#75695E" />
+                  <User size={16} color="#706459" />
                 </View>
                 <View style={styles.tipContent}>
                   <Text style={styles.tipTitle}>
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   introText: {
     fontSize: 13,
-    color: '#75695E',
+    color: '#706459',
     lineHeight: 18,
   },
   comparisonGrid: {
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
   },
   cardCaptionDesc: {
     fontSize: 10.5,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
     lineHeight: 14,
   },
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   },
   tipDescription: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
     lineHeight: 16,
   },

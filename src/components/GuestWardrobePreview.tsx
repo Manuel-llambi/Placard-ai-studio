@@ -88,7 +88,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
 
       {/* Screen Title & Tabs */}
       <View style={styles.titleRow}>
-        <Text style={styles.sectionTitle}>
+        <Text style={styles.sectionTitle} accessibilityRole="header">
           {activeTab === 'looks' ? 'Tus looks' : 'Tu placard'}
         </Text>
         <Text style={styles.countText}>
@@ -193,6 +193,8 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
             onPress={onNewVton}
             activeOpacity={0.85}
             style={styles.cardAddPrompt}
+            accessibilityRole="button"
+            accessibilityLabel="Probar otra prenda"
           >
             <View style={styles.plusCircle}>
               <Plus size={20} color="#7A4655" />
@@ -269,6 +271,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
           onPress={onNewVton}
           activeOpacity={0.88}
           style={styles.tryAnotherBtn}
+          accessibilityRole="button"
         >
           <Camera size={16} color="#FFFFFF" />
           <Text style={styles.tryAnotherBtnText}>Hacer otra prueba virtual</Text>
@@ -288,7 +291,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
         >
           <FolderHeart
             size={20}
-            color={activeTab === 'looks' ? '#7A4655' : '#A79C8E'}
+            color={activeTab === 'looks' ? '#7A4655' : '#706459'}
             strokeWidth={activeTab === 'looks' ? 2.2 : 1.5}
           />
           <Text
@@ -306,6 +309,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
           onPress={onNewVton}
           activeOpacity={0.85}
           style={styles.centerFab}
+          accessibilityRole="button"
           accessibilityLabel="Nueva prueba virtual"
         >
           <Plus size={24} color="#FFFFFF" strokeWidth={2.5} />
@@ -322,7 +326,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
         >
           <Shirt
             size={20}
-            color={activeTab === 'placard' ? '#7A4655' : '#A79C8E'}
+            color={activeTab === 'placard' ? '#7A4655' : '#706459'}
             strokeWidth={activeTab === 'placard' ? 2.2 : 1.5}
           />
           <Text
@@ -386,7 +390,7 @@ const styles = StyleSheet.create({
   },
   guestBannerSubtitle: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 2,
   },
   saveWardrobeBtn: {
@@ -429,7 +433,7 @@ const styles = StyleSheet.create({
   },
   planText: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     fontWeight: '500',
   },
   titleRow: {
@@ -446,7 +450,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
   },
   chipsScroll: {
     marginBottom: 12,
@@ -475,7 +479,7 @@ const styles = StyleSheet.create({
     color: '#2B2420',
   },
   chipTextInactive: {
-    color: '#75695E',
+    color: '#706459',
   },
   grid: {
     flexDirection: 'row',
@@ -576,7 +580,7 @@ const styles = StyleSheet.create({
   },
   addPromptSubtitle: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
     marginTop: 4,
     textAlign: 'center',
     lineHeight: 15,
@@ -603,7 +607,7 @@ const styles = StyleSheet.create({
   },
   nextStepHint: {
     fontSize: 11,
-    color: '#75695E',
+    color: '#706459',
   },
   nextStepTitle: {
     fontFamily: 'sans-serif',
@@ -614,7 +618,7 @@ const styles = StyleSheet.create({
   },
   nextStepDesc: {
     fontSize: 12,
-    color: '#75695E',
+    color: '#706459',
     marginBottom: 12,
     lineHeight: 16,
   },
@@ -662,7 +666,7 @@ const styles = StyleSheet.create({
     color: '#7A4655',
   },
   navLabelInactive: {
-    color: '#A79C8E',
+    color: '#706459',
   },
   centerFab: {
     width: 48,
