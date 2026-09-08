@@ -7,7 +7,7 @@ Como usuaria, quiero subir una foto mía (cuerpo entero o torso) y ser avisada s
 - La usuaria puede subir una foto propia desde su dispositivo (cámara o galería).
 - Antes de continuar al siguiente paso, el sistema evalúa si la foto tiene problemas evidentes de calidad (muy oscura, recortada, borrosa).
 - Si detecta un problema, informa el motivo de forma específica y ofrece volver a intentar sin perder el contexto (no hay que reiniciar el flujo desde H1).
-- Si la foto pasa la validación, la usuaria avanza al paso de subir la foto de la prenda.
+- Si la foto pasa la validación, la usuaria avanza al paso de subir la foto de la prenda. La card de la foto subida con exito tiene un 2 CTA: una para resubir la foto y otro para borrarla.
 
 **Criterios de experiencia**:
 - El aviso de calidad insuficiente se siente como una sugerencia útil ("mejor probemos con otra"), no como un rechazo o error del sistema.

@@ -6,8 +6,8 @@ Como usuaria, quiero subir una foto de una prenda que ya tengo y ser avisada si 
 **Criterios de aceptación funcionales:**
 - La usuaria puede subir una foto de una prenda propia desde su dispositivo (cámara o galería).
 - El sistema evalúa la foto de la prenda con el mismo criterio de calidad que la foto propia (muy oscura, recortada, borrosa) antes de generar el resultado.
-- Si detecta un problema, lo informa y ofrece volver a intentar sin perder la foto propia ya cargada.
-- Si la foto pasa la validación, el sistema pasa a generar el resultado del VTON.
+- Si detecta un problema, informa el problema que tiene la foto y ofrece volver a intentar sin perder la foto propia ya cargada con un CTA para borrar la foto y volver a subirla.
+- Si la foto pasa la validación, el sistema muestra la foto cargada con un mensaje de "Prenda cargada con exito" y un CTA para poder borrar la foto si lo desea.
 
 **Criterios de experiencia:**
 - Mismo tono tranquilo que en H3 para el aviso de calidad insuficiente.
