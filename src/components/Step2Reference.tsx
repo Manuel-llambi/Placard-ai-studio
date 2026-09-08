@@ -14,10 +14,19 @@ import {
   Sparkles,
   Check,
   X,
+  RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import { Garment, ReferencePhoto } from '../types';
 import { DEMO_REFERENCE_PHOTO, GUIDE_PHOTOS } from '../data/samples';
 import { BodyPhotoGuideModal } from './BodyPhotoGuideModal';
+import {
+  PhotoQualityIssue,
+  getPhotoQualityIssueMessage,
+  simulatePhotoQualityCheck,
+} from '../utils/simulatePhotoQuality';
+
+type QualityStatus = 'idle' | 'checking' | 'approved' | 'rejected';
 
 interface Step2ReferenceProps {
   selectedGarment: Garment;
@@ -39,12 +48,48 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
 
+  // Foto propia capturada/subida en ESTA pantalla, se haya aprobado o no.
+  // Se mantiene visible durante un rechazo/reintento para no perder el contexto.
+  const [capturedReferencePhoto, setCapturedReferencePhoto] = useState<ReferencePhoto | null>(
+    () => (referencePhoto && !referencePhoto.isDemo ? referencePhoto : null)
+  );
+  // Qué dice el chequeo de calidad simulado sobre esa foto ahora mismo.
+  const [qualityCheck, setQualityCheck] = useState<{ status: QualityStatus; issue?: PhotoQualityIssue }>(
+    () => (referencePhoto && !referencePhoto.isDemo ? { status: 'approved' } : { status: 'idle' })
+  );
+
   // Auto-select demo photo if none selected initially, but allow full customization
   useEffect(() => {
     if (!referencePhoto) {
       onSelectReferencePhoto(DEMO_REFERENCE_PHOTO);
     }
   }, [referencePhoto, onSelectReferencePhoto]);
+
+  // Corre la validación de calidad simulada sobre una foto recién capturada/subida.
+  // Solo si aprueba se eleva la foto al estado del padre (App.tsx) vía onSelectReferencePhoto;
+  // si la rechaza, la foto capturada se mantiene visible localmente para poder reintentar
+  // sin perderla, pero el padre sigue con lo que tenía antes.
+  const runQualityCheck = async (photo: ReferencePhoto, forceIssue?: PhotoQualityIssue) => {
+    setCapturedReferencePhoto(photo);
+    setQualityCheck({ status: 'checking' });
+
+    const result = await simulatePhotoQualityCheck(forceIssue);
+
+    if (result.approved) {
+      setQualityCheck({ status: 'approved' });
+      onSelectReferencePhoto(photo);
+    } else {
+      setQualityCheck({ status: 'rejected', issue: result.issue });
+    }
+  };
+
+  // Descarta la foto propia capturada en esta pantalla y vuelve a mostrar los botones
+  // de captura. Solo limpia el estado local: si la foto ya había sido aprobada y elevada
+  // al padre (App.tsx), la foto seleccionada ahí no cambia hasta que se suba/capture otra.
+  const handleDeleteCapturedReferencePhoto = () => {
+    setCapturedReferencePhoto(null);
+    setQualityCheck({ status: 'idle' });
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,8 +102,13 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           imageUrl: event.target?.result as string,
           isDemo: false,
         };
-        onSelectReferencePhoto(customPhoto);
+        // Atajo de prueba: si el nombre del archivo incluye "error", forzamos el
+        // rechazo para poder ver el estado de calidad insuficiente sin depender del azar.
+        const forceIssue: PhotoQualityIssue | undefined = /error/i.test(file.name)
+          ? 'muy_oscura'
+          : undefined;
         stopCamera();
+        runQualityCheck(customPhoto, forceIssue);
       };
       reader.readAsDataURL(file);
     }
@@ -108,11 +158,16 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
           isDemo: false,
           isLive: true,
         };
-        onSelectReferencePhoto(photo);
         stopCamera();
+        runQualityCheck(photo);
       }
     }
   };
+
+  // Si no se tocó "tomar foto"/"subir de galería" en esta pantalla, no bloqueamos nada
+  // (deja intacto el click-through de demo con la foto de Camila precargada).
+  // Apenas hay una foto propia en juego, hay que esperar a que quede aprobada.
+  const canContinue = !capturedReferencePhoto || qualityCheck.status === 'approved';
 
   return (
     <View style={styles.container}>
@@ -243,6 +298,16 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
               <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
             </TouchableOpacity>
 
+            {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
+            <View style={styles.privacyBanner}>
+              <View style={styles.shieldIconWrapper}>
+                <ShieldCheck size={14} color="#8C9B7E" />
+              </View>
+              <Text style={styles.privacyText}>
+                Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
+              </Text>
+            </View>
+
             {/* Main Action Buttons */}
             <View style={styles.actionButtonsStack}>
               <TouchableOpacity
@@ -267,6 +332,79 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
                 <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Uploaded / Selected Custom Reference Photo Feedback */}
+            {capturedReferencePhoto && (
+              <View style={styles.uploadedFeedbackBox}>
+                <View style={styles.uploadedRow}>
+                  <Image
+                    source={{ uri: capturedReferencePhoto.imageUrl }}
+                    accessibilityLabel="Foto de referencia personalizada"
+                    style={styles.uploadedThumb}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.uploadedMeta}>
+                    {qualityCheck.status === 'checking' && (
+                      <Text style={styles.checkingText}>Analizando calidad de la foto…</Text>
+                    )}
+
+                    {qualityCheck.status === 'approved' && (
+                      <>
+                        <View style={styles.detectedRow}>
+                          <View style={styles.greenDot} />
+                          <Text style={styles.detectedText}>Foto propia capturada ✓</Text>
+                        </View>
+                        <Text style={styles.uploadedName} numberOfLines={1}>
+                          {capturedReferencePhoto.name}
+                        </Text>
+                        <Text style={styles.uploadedDesc}>
+                          Lista para adaptar la prenda a tu silueta
+                        </Text>
+                      </>
+                    )}
+
+                    {qualityCheck.status === 'rejected' && (
+                      <View style={styles.detectedRow}>
+                        <View style={styles.issueDot} />
+                        <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.uploadedActions}>
+                    <TouchableOpacity
+                      onPress={() => cameraInputRef.current?.click()}
+                      activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel="Reintentar foto de referencia"
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={styles.iconActionButton}
+                    >
+                      <RotateCcw size={16} color="#706459" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleDeleteCapturedReferencePhoto}
+                      activeOpacity={0.7}
+                      accessibilityRole="button"
+                      accessibilityLabel="Eliminar foto de referencia"
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={styles.iconActionButton}
+                    >
+                      <Trash2 size={16} color="#A85A46" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Motivo específico del rechazo, tono de sugerencia */}
+                {qualityCheck.status === 'rejected' && qualityCheck.issue && (
+                  <View style={styles.rejectedReasonBox}>
+                    <Text style={styles.rejectedReasonText}>
+                      {getPhotoQualityIssueMessage(qualityCheck.issue)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* Synthesized Visual Guidance inside the Card */}
             <View id="synthesized-body-guidance" style={styles.guidanceSection}>
@@ -333,50 +471,25 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         </Text>
       )}
 
-      {/* Fallback Option to Use Demo Photo if desired */}
-      {!referencePhoto?.isDemo && (
-        <TouchableOpacity
-          onPress={() => onSelectReferencePhoto(DEMO_REFERENCE_PHOTO)}
-          activeOpacity={0.7}
-          style={styles.demoLinkBox}
-          accessibilityRole="button"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Text style={styles.demoLinkText}>
-            ¿Querés probar rápido? Podés usar la foto de prueba de Camila
-          </Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
-      <View style={styles.privacyBanner}>
-        <View style={styles.shieldIconWrapper}>
-          <ShieldCheck size={14} color="#8C9B7E" />
-        </View>
-        <Text style={styles.privacyText}>
-          Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
-        </Text>
-      </View>
-
       {/* Primary CTA: Ver cómo te queda */}
       <View style={styles.footerCTA}>
         <TouchableOpacity
           id="btn-generate-vton"
           onPress={onGenerate}
-          disabled={!referencePhoto}
+          disabled={!referencePhoto || !canContinue}
           activeOpacity={0.88}
           style={[
             styles.generateButton,
-            !referencePhoto && styles.generateButtonDisabled,
+            (!referencePhoto || !canContinue) && styles.generateButtonDisabled,
           ]}
           accessibilityRole="button"
-          accessibilityState={{ disabled: !referencePhoto }}
+          accessibilityState={{ disabled: !referencePhoto || !canContinue }}
         >
-          <Sparkles size={16} color={referencePhoto ? '#FAF7F2' : '#706459'} />
+          <Sparkles size={16} color={referencePhoto && canContinue ? '#FAF7F2' : '#706459'} />
           <Text
             style={[
               styles.generateButtonText,
-              !referencePhoto && styles.generateButtonTextDisabled,
+              (!referencePhoto || !canContinue) && styles.generateButtonTextDisabled,
             ]}
           >
             Ver cómo te queda
@@ -736,6 +849,101 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 14,
   },
+  uploadedFeedbackBox: {
+    marginTop: 14,
+    width: '100%',
+    backgroundColor: '#FAF7F2',
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(140, 155, 126, 0.7)',
+  },
+  uploadedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  uploadedThumb: {
+    width: 48,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+  },
+  uploadedMeta: {
+    flex: 1,
+  },
+  detectedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  greenDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#8C9B7E',
+  },
+  detectedText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#8C9B7E',
+    letterSpacing: 0.6,
+  },
+  checkingText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#706459',
+  },
+  issueDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#A85A46',
+  },
+  issueText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#A85A46',
+    letterSpacing: 0.6,
+  },
+  uploadedName: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#2B2420',
+    marginTop: 2,
+  },
+  uploadedDesc: {
+    fontSize: 11,
+    color: '#706459',
+    marginTop: 2,
+  },
+  uploadedActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconActionButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rejectedReasonBox: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(220, 210, 196, 0.4)',
+  },
+  rejectedReasonText: {
+    fontSize: 11.5,
+    color: '#A85A46',
+    lineHeight: 16,
+  },
   errorText: {
     fontSize: 12,
     color: '#A85A46',
@@ -744,15 +952,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
     textAlign: 'center',
-  },
-  demoLinkBox: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  demoLinkText: {
-    fontSize: 12,
-    color: '#706459',
-    textDecorationLine: 'underline',
   },
   privacyBanner: {
     backgroundColor: 'rgba(211, 218, 199, 0.3)',

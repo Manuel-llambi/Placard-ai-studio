@@ -10,7 +10,7 @@ Como usuaria que acaba de ver su resultado, quiero poder decir si se parece a m�
 - **Prioridad**: media — instrumentación de la métrica de calidad del MVP (sección 9 del PRD), no bloquea el loop funcional core.
 
 ## Pantallas involucradas
-- **Resultado de prueba — comparar y guardar** (inventario 8.5 de `DESIGN.md`), implementada hoy en el repo como `src/components/Step3Result.tsx` — es la pantalla donde vive el `heroCard` con la imagen VTON generada en H5; el gesto de feedback de H6 se agrega dentro de esta misma pantalla, inmediatamente después del hero.
+- **Resultado de prueba — comparar y guardar** (inventario 8.5 de `DESIGN.md`), implementada hoy en el repo como `src/components/Step3Result.tsx` — es la pantalla donde vive el `heroCard` con la imagen VTON generada en H5; el gesto de feedback de H6 se agrega dentro de esta misma pantalla, inmediatamente después del hero. COmo un sheet que emerge de abajo, sin overlay, y se puede apetar un icono de cruz para cerrarlo
 - No se agrega una pantalla nueva: la pregunta es un elemento adicional dentro de la pantalla de resultado ya existente, no un paso de flujo separado.
 
 ## Componentes del DS a usar
