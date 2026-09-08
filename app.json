@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Placard",
+    "slug": "placard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "placard",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.placard.app"
+    },
+    "android": {
+      "package": "com.placard.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-status-bar",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Placard usa tu galería para elegir la foto de una prenda o tu foto de referencia.",
+          "cameraPermission": "Placard usa la cámara para sacarle una foto a una prenda o a tu cuerpo y mostrarte cómo te queda."
+        }
+      ]
+    ]
+  }
+}

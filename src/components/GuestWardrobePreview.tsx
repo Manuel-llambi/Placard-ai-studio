@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Sparkles,
   Plus,
@@ -14,9 +15,19 @@ import {
   Camera,
   Shirt,
   FolderHeart,
-} from 'lucide-react';
+} from 'lucide-react-native';
 import { VtonResult } from '../types';
 import { SAMPLE_GARMENTS } from '../data/samples';
+
+// Scrim bottom-weighted para que el caption blanco se lea sobre cualquier foto
+// (reemplaza el `backgroundImage: linear-gradient(...)` de la versión web, que
+// no existe como estilo nativo de View).
+const CARD_SCRIM_COLORS = [
+  'rgba(43, 36, 32, 0)',
+  'rgba(43, 36, 32, 0.2)',
+  'rgba(43, 36, 32, 0.75)',
+] as const;
+const CARD_SCRIM_LOCATIONS = [0, 0.55, 1] as const;
 
 interface GuestWardrobePreviewProps {
   initialResult: VtonResult;
@@ -46,7 +57,12 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={styles.screen}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Banner: Guest Mode or Registered Account Status */}
       {!isRegisteredUser ? (
         <View style={styles.guestBanner}>
@@ -173,7 +189,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
                 style={styles.cardImage}
                 resizeMode="cover"
               />
-              <View style={styles.cardOverlay} />
+              <LinearGradient colors={CARD_SCRIM_COLORS} locations={CARD_SCRIM_LOCATIONS} style={styles.cardOverlay} />
               <View style={styles.heartButton}>
                 <Heart size={14} color="#7A4655" fill="#7A4655" />
               </View>
@@ -216,7 +232,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
                 style={styles.cardImage}
                 resizeMode="cover"
               />
-              <View style={styles.cardOverlay} />
+              <LinearGradient colors={CARD_SCRIM_COLORS} locations={CARD_SCRIM_LOCATIONS} style={styles.cardOverlay} />
               <View style={styles.lookMetaBottom}>
                 <Text style={styles.garmentCategory}>
                   {initialResult.garment.category}
@@ -237,7 +253,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
                 style={styles.cardImage}
                 resizeMode="cover"
               />
-              <View style={styles.cardOverlay} />
+              <LinearGradient colors={CARD_SCRIM_COLORS} locations={CARD_SCRIM_LOCATIONS} style={styles.cardOverlay} />
               <View style={styles.lookMetaBottom}>
                 <Text style={styles.garmentCategory}>
                   {SAMPLE_GARMENTS[1].category}
@@ -274,6 +290,7 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
           <Text style={styles.tryAnotherBtnText}>Hacer otra prueba virtual</Text>
         </TouchableOpacity>
       </View>
+      </ScrollView>
 
       {/* Bottom Navigation Bar */}
       <View style={styles.bottomNav}>
@@ -340,6 +357,15 @@ export const GuestWardrobePreview: React.FC<GuestWardrobePreviewProps> = ({
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    width: '100%',
+    position: 'relative',
+  },
+  scrollView: {
+    width: '100%',
+    flex: 1,
+  },
   container: {
     width: '100%',
     maxWidth: 448,
@@ -348,7 +374,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 96,
     flexDirection: 'column',
-    minHeight: 'calc(100vh - 60px)' as any,
+    flexGrow: 1,
   },
   guestBanner: {
     backgroundColor: '#FAF7F2',
@@ -500,17 +526,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  // Bottom-weighted scrim (ver CARD_SCRIM_COLORS/LOCATIONS) para que el caption
+  // blanco se lea sobre cualquier foto, en vez de un tinte plano que lava las
+  // prendas claras. Solo el tamaño/posición vive acá: los colores del gradiente
+  // los pone el componente <LinearGradient>.
   cardOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    // Bottom-weighted scrim so the white caption stays legible over any photo,
-    // instead of a flat tint that can wash out on light garments.
-    backgroundImage:
-      'linear-gradient(to top, rgba(43, 36, 32, 0.75) 0%, rgba(43, 36, 32, 0.2) 45%, rgba(43, 36, 32, 0) 75%)',
-  } as any,
+  },
   heartButton: {
     position: 'absolute',
     top: 10,
@@ -634,7 +660,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bottomNav: {
-    position: 'fixed' as any,
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { X, Sliders, Check } from 'lucide-react';
+import Slider from '@react-native-community/slider';
+import { X, Check } from 'lucide-react-native';
 import { VtonResult } from '../types';
+import { useEscapeToClose } from '../utils/useEscapeToClose';
 
 interface CompareModalProps {
   result: VtonResult;
@@ -19,13 +21,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
   const [sliderPos, setSliderPos] = useState(50);
   const [activeTab, setActiveTab] = useState<'slider' | 'sideBySide'>('slider');
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  useEscapeToClose(true, onClose);
 
   return (
     <TouchableWithoutFeedback onPress={onClose}>
@@ -132,36 +128,20 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
                 <Text style={styles.badgeText}>VTON Placard</Text>
               </View>
 
-              {/* Slider thumb handle */}
-              <View
-                style={[
-                  styles.sliderThumbTrack,
-                  { left: `calc(${sliderPos}% - 16px)` as any },
-                ]}
-              >
-                <View style={styles.sliderThumb}>
-                  <Sliders size={16} color="#7A4655" />
-                </View>
+              {/* Interactive slider to drag the before/after split */}
+              <View style={styles.sliderOverlay}>
+                <Slider
+                  style={styles.rangeSlider}
+                  minimumValue={0}
+                  maximumValue={100}
+                  value={sliderPos}
+                  onValueChange={setSliderPos}
+                  minimumTrackTintColor="#7A4655"
+                  maximumTrackTintColor="rgba(255,255,255,0.7)"
+                  thumbTintColor="#FFFFFF"
+                  accessibilityLabel="Deslizar para comparar"
+                />
               </View>
-
-              {/* Interactive range input */}
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={sliderPos}
-                onChange={(e) => setSliderPos(Number(e.target.value))}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
-                  cursor: 'ew-resize',
-                  zIndex: 20,
-                }}
-                aria-label="Deslizar para comparar"
-              />
             </View>
           ) : (
             <View style={styles.sideBySideRow}>
@@ -221,7 +201,7 @@ export const CompareModal: React.FC<CompareModalProps> = ({ result, onClose }) =
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'fixed' as any,
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
@@ -238,7 +218,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F6F1EA',
     borderRadius: 24,
     overflow: 'hidden',
-    maxHeight: '92vh' as any,
+    maxHeight: '92%',
   },
   header: {
     paddingHorizontal: 20,
@@ -352,22 +332,17 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
   },
-  sliderThumbTrack: {
+  sliderOverlay: {
     position: 'absolute',
-    top: 0,
+    left: 0,
+    right: 0,
     bottom: 0,
-    alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 4,
+    zIndex: 20,
   },
-  sliderThumb: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#7A4655',
+  rangeSlider: {
+    width: '100%',
   },
   sideBySideRow: {
     flexDirection: 'row',
@@ -442,4 +417,3 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
-

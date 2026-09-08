@@ -1,9 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
+  ScrollView,
   StyleSheet,
 } from 'react-native';
 import {
@@ -16,10 +17,12 @@ import {
   X,
   RotateCcw,
   Trash2,
-} from 'lucide-react';
+} from 'lucide-react-native';
 import { Garment, ReferencePhoto } from '../types';
 import { DEMO_REFERENCE_PHOTO, GUIDE_PHOTOS } from '../data/samples';
 import { BodyPhotoGuideModal } from './BodyPhotoGuideModal';
+import { generateVirtualTryOn } from '../services/virtualTryOnService';
+import { pickImageFromCamera, pickImageFromGallery } from '../utils/pickImage';
 import {
   PhotoQualityIssue,
   getPhotoQualityIssueMessage,
@@ -41,10 +44,6 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   onSelectReferencePhoto,
   onGenerate,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
 
@@ -91,76 +90,56 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
     setQualityCheck({ status: 'idle' });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const customPhoto: ReferencePhoto = {
-          id: `ref-${Date.now()}`,
-          name: file.name,
-          imageUrl: event.target?.result as string,
-          isDemo: false,
-        };
-        // Atajo de prueba: si el nombre del archivo incluye "error", forzamos el
-        // rechazo para poder ver el estado de calidad insuficiente sin depender del azar.
-        const forceIssue: PhotoQualityIssue | undefined = /error/i.test(file.name)
-          ? 'muy_oscura'
-          : undefined;
-        stopCamera();
-        runQualityCheck(customPhoto, forceIssue);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const startLiveCamera = async () => {
+  // Abre la cámara nativa del dispositivo (expo-image-picker) para sacar la foto de referencia.
+  const handleTakePhoto = async () => {
     setCameraError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } },
-      });
-      setIsCameraActive(true);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
+      const picked = await pickImageFromCamera();
+      if (!picked) return; // el usuario canceló
+
+      const photo: ReferencePhoto = {
+        id: `camera-snap-${Date.now()}`,
+        name: 'Foto tomada en vivo',
+        imageUrl: picked.uri,
+        isDemo: false,
+        isLive: true,
+      };
+      // Atajo de prueba: si el nombre del archivo incluye "error", forzamos el
+      // rechazo para poder ver el estado de calidad insuficiente sin depender del azar.
+      const forceIssue: PhotoQualityIssue | undefined = /error/i.test(picked.fileName)
+        ? 'muy_oscura'
+        : undefined;
+      runQualityCheck(photo, forceIssue);
     } catch (err) {
-      console.warn('Camera access denied or unavailable, falling back to input', err);
-      setCameraError('No pudimos acceder a la cámara. Elegí una foto de tu galería o revisá los permisos.');
-      cameraInputRef.current?.click();
+      console.warn('No se pudo abrir la cámara', err);
+      setCameraError(
+        err instanceof Error ? err.message : 'No pudimos acceder a la cámara. Revisá los permisos.'
+      );
     }
   };
 
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraActive(false);
-  };
+  // Abre la galería nativa del dispositivo (expo-image-picker) para elegir la foto de referencia.
+  const handleUploadGallery = async () => {
+    setCameraError(null);
+    try {
+      const picked = await pickImageFromGallery();
+      if (!picked) return; // el usuario canceló
 
-  const captureCameraSnapshot = () => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 720;
-      canvas.height = video.videoHeight || 960;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-        const photo: ReferencePhoto = {
-          id: `camera-snap-${Date.now()}`,
-          name: 'Foto tomada en vivo',
-          imageUrl: dataUrl,
-          isDemo: false,
-          isLive: true,
-        };
-        stopCamera();
-        runQualityCheck(photo);
-      }
+      const customPhoto: ReferencePhoto = {
+        id: `ref-${Date.now()}`,
+        name: picked.fileName,
+        imageUrl: picked.uri,
+        isDemo: false,
+      };
+      const forceIssue: PhotoQualityIssue | undefined = /error/i.test(picked.fileName)
+        ? 'muy_oscura'
+        : undefined;
+      runQualityCheck(customPhoto, forceIssue);
+    } catch (err) {
+      console.warn('No se pudo abrir la galería', err);
+      setCameraError(
+        err instanceof Error ? err.message : 'No pudimos acceder a tu galería. Revisá los permisos.'
+      );
     }
   };
 
@@ -169,25 +148,28 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   // Apenas hay una foto propia en juego, hay que esperar a que quede aprobada.
   const canContinue = !capturedReferencePhoto || qualityCheck.status === 'approved';
 
-  return (
-    <View style={styles.container}>
-      {/* Hidden Inputs for Gallery & Direct Camera Capture */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={handleFileUpload}
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="user"
-        style={{ display: 'none' }}
-        onChange={handleFileUpload}
-      />
+  // Dispara la generación del VTON contra el backend real (aún no implementado,
+  // ver src/services/virtualTryOnService.ts) y, en paralelo, sigue con el flujo
+  // mockeado actual (onGenerate) para no romper la demo mientras no haya endpoint.
+  const handleGeneratePress = () => {
+    if (!referencePhoto) return;
 
+    generateVirtualTryOn({
+      garmentPhoto: selectedGarment,
+      referencePhoto,
+    }).catch((error) => {
+      console.warn('[virtualTryOnService] generateVirtualTryOn no implementada todavía:', error);
+    });
+
+    onGenerate();
+  };
+
+  return (
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Step Indicator & Progress */}
       <View style={styles.indicatorContainer}>
         <View style={styles.indicatorRow}>
@@ -234,226 +216,186 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
 
       {/* Interactive Body Capture & Upload Card */}
       <View id="body-capture-card" style={styles.captureCard}>
-        {isCameraActive ? (
-          /* Live Camera View within the Card */
-          <View style={styles.cameraContainer}>
-            <View style={styles.videoWrapper}>
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              <View style={styles.cameraOvalGuide} />
-            </View>
+        <View style={styles.cameraIconCircle}>
+          <Camera size={24} color="#7A4655" strokeWidth={1.8} />
+        </View>
 
-            <View style={styles.cameraButtonsRow}>
-              <TouchableOpacity
-                onPress={stopCamera}
-                activeOpacity={0.8}
-                style={styles.cancelCameraButton}
-                accessibilityLabel="Cancelar y cerrar cámara"
-                hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-              >
-                <Text style={styles.cancelCameraText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={captureCameraSnapshot}
-                activeOpacity={0.85}
-                style={styles.shutterButton}
-                accessibilityLabel="Capturar foto de referencia"
-                accessibilityRole="button"
-              >
-                <Camera size={16} color="#FFFFFF" />
-                <Text style={styles.shutterButtonText}>Capturar foto</Text>
-              </TouchableOpacity>
-            </View>
+        <Text style={styles.cardTitle}>
+          Capturá tu foto de cuerpo
+        </Text>
+        <Text style={styles.cardSubtitle}>
+          Nuestra IA adaptará la prenda a tu silueta real, respetando tus proporciones.
+        </Text>
+
+        {/* Direct Trigger to Open Guide Modal */}
+        <TouchableOpacity
+          id="btn-open-body-tips"
+          onPress={() => setIsGuideModalOpen(true)}
+          activeOpacity={0.7}
+          style={styles.guideTriggerButton}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Sparkles size={14} color="#7A4655" />
+          <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
+        </TouchableOpacity>
+
+        {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
+        <View style={styles.privacyBanner}>
+          <View style={styles.shieldIconWrapper}>
+            <ShieldCheck size={14} color="#8C9B7E" />
           </View>
-        ) : (
-          /* Standard Card View */
-          <>
-            <View style={styles.cameraIconCircle}>
-              <Camera size={24} color="#7A4655" strokeWidth={1.8} />
-            </View>
+          <Text style={styles.privacyText}>
+            Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
+          </Text>
+        </View>
 
-            <Text style={styles.cardTitle}>
-              Capturá tu foto de cuerpo
-            </Text>
-            <Text style={styles.cardSubtitle}>
-              Nuestra IA adaptará la prenda a tu silueta real, respetando tus proporciones.
-            </Text>
+        {/* Main Action Buttons */}
+        <View style={styles.actionButtonsStack}>
+          <TouchableOpacity
+            id="btn-take-photo-body"
+            onPress={handleTakePhoto}
+            activeOpacity={0.85}
+            style={styles.primaryActionButton}
+          >
+            <Camera size={16} color="#FFFFFF" />
+            <Text style={styles.primaryActionText}>Tomar foto a mi cuerpo</Text>
+          </TouchableOpacity>
 
-            {/* Direct Trigger to Open Guide Modal */}
-            <TouchableOpacity
-              id="btn-open-body-tips"
-              onPress={() => setIsGuideModalOpen(true)}
-              activeOpacity={0.7}
-              style={styles.guideTriggerButton}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            >
-              <Sparkles size={14} color="#7A4655" />
-              <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            id="btn-upload-gallery-body"
+            onPress={handleUploadGallery}
+            activeOpacity={0.85}
+            style={styles.secondaryActionButton}
+          >
+            <ImageIcon size={16} color="#75695E" />
+            <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
+          </TouchableOpacity>
+        </View>
 
-            {/* Explicit Privacy Banner (Rule 7: direct & reassuring) */}
-            <View style={styles.privacyBanner}>
-              <View style={styles.shieldIconWrapper}>
-                <ShieldCheck size={14} color="#8C9B7E" />
-              </View>
-              <Text style={styles.privacyText}>
-                Esta foto la usamos solo para mostrarte cómo te queda esta prenda. Se borra sola a las 72 horas y nunca se usa para entrenar inteligencia artificial.
-              </Text>
-            </View>
+        {/* Uploaded / Selected Custom Reference Photo Feedback */}
+        {capturedReferencePhoto && (
+          <View style={styles.uploadedFeedbackBox}>
+            <View style={styles.uploadedRow}>
+              <Image
+                source={{ uri: capturedReferencePhoto.imageUrl }}
+                accessibilityLabel="Foto de referencia personalizada"
+                style={styles.uploadedThumb}
+                resizeMode="cover"
+              />
+              <View style={styles.uploadedMeta}>
+                {qualityCheck.status === 'checking' && (
+                  <Text style={styles.checkingText}>Analizando calidad de la foto…</Text>
+                )}
 
-            {/* Main Action Buttons */}
-            <View style={styles.actionButtonsStack}>
-              <TouchableOpacity
-                id="btn-take-photo-body"
-                onPress={startLiveCamera}
-                activeOpacity={0.85}
-                style={styles.primaryActionButton}
-              >
-                <Camera size={16} color="#FFFFFF" />
-                <Text style={styles.primaryActionText}>Tomar foto a mi cuerpo</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                id="btn-upload-gallery-body"
-                onPress={() => fileInputRef.current?.click()}
-                activeOpacity={0.85}
-                style={styles.secondaryActionButton}
-              >
-                <ImageIcon size={16} color="#75695E" />
-                <Text style={styles.secondaryActionText}>Subir de mi galería</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Uploaded / Selected Custom Reference Photo Feedback */}
-            {capturedReferencePhoto && (
-              <View style={styles.uploadedFeedbackBox}>
-                <View style={styles.uploadedRow}>
-                  <Image
-                    source={{ uri: capturedReferencePhoto.imageUrl }}
-                    accessibilityLabel="Foto de referencia personalizada"
-                    style={styles.uploadedThumb}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.uploadedMeta}>
-                    {qualityCheck.status === 'checking' && (
-                      <Text style={styles.checkingText}>Analizando calidad de la foto…</Text>
-                    )}
-
-                    {qualityCheck.status === 'approved' && (
-                      <>
-                        <View style={styles.detectedRow}>
-                          <View style={styles.greenDot} />
-                          <Text style={styles.detectedText}>Foto propia capturada ✓</Text>
-                        </View>
-                        <Text style={styles.uploadedName} numberOfLines={1}>
-                          {capturedReferencePhoto.name}
-                        </Text>
-                        <Text style={styles.uploadedDesc}>
-                          Lista para adaptar la prenda a tu silueta
-                        </Text>
-                      </>
-                    )}
-
-                    {qualityCheck.status === 'rejected' && (
-                      <View style={styles.detectedRow}>
-                        <View style={styles.issueDot} />
-                        <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View style={styles.uploadedActions}>
-                    <TouchableOpacity
-                      onPress={() => cameraInputRef.current?.click()}
-                      activeOpacity={0.7}
-                      accessibilityLabel="Reintentar foto de referencia"
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      style={styles.iconActionButton}
-                    >
-                      <RotateCcw size={16} color="#75695E" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={handleDeleteCapturedReferencePhoto}
-                      activeOpacity={0.7}
-                      accessibilityLabel="Eliminar foto de referencia"
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                      style={styles.iconActionButton}
-                    >
-                      <Trash2 size={16} color="#A85A46" />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Motivo específico del rechazo, tono de sugerencia */}
-                {qualityCheck.status === 'rejected' && qualityCheck.issue && (
-                  <View style={styles.rejectedReasonBox}>
-                    <Text style={styles.rejectedReasonText}>
-                      {getPhotoQualityIssueMessage(qualityCheck.issue)}
+                {qualityCheck.status === 'approved' && (
+                  <>
+                    <View style={styles.detectedRow}>
+                      <View style={styles.greenDot} />
+                      <Text style={styles.detectedText}>Foto propia capturada ✓</Text>
+                    </View>
+                    <Text style={styles.uploadedName} numberOfLines={1}>
+                      {capturedReferencePhoto.name}
                     </Text>
+                    <Text style={styles.uploadedDesc}>
+                      Lista para adaptar la prenda a tu silueta
+                    </Text>
+                  </>
+                )}
+
+                {qualityCheck.status === 'rejected' && (
+                  <View style={styles.detectedRow}>
+                    <View style={styles.issueDot} />
+                    <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
                   </View>
                 )}
               </View>
-            )}
 
-            {/* Synthesized Visual Guidance inside the Card */}
-            <View id="synthesized-body-guidance" style={styles.guidanceSection}>
-              <View style={styles.guidanceHeader}>
-                <Text style={styles.guidanceLabel}>
-                  RECOMENDACIONES PARA TU FOTO:
-                </Text>
+              <View style={styles.uploadedActions}>
                 <TouchableOpacity
-                  onPress={() => setIsGuideModalOpen(true)}
+                  onPress={handleTakePhoto}
                   activeOpacity={0.7}
+                  accessibilityLabel="Reintentar foto de referencia"
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  style={styles.iconActionButton}
                 >
-                  <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
+                  <RotateCcw size={16} color="#75695E" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleDeleteCapturedReferencePhoto}
+                  activeOpacity={0.7}
+                  accessibilityLabel="Eliminar foto de referencia"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  style={styles.iconActionButton}
+                >
+                  <Trash2 size={16} color="#A85A46" />
                 </TouchableOpacity>
               </View>
+            </View>
 
-              <View style={styles.guidanceGrid}>
-                {/* Así sí */}
-                <View style={styles.guidanceCard}>
-                  <View style={styles.guidanceImageWrapper}>
-                    <Image
-                      source={{ uri: GUIDE_PHOTOS.asiSi.url }}
-                      accessibilityLabel="Así sí"
-                      style={styles.guidanceImage}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.yesBadge}>
-                      <Check size={10} color="#FFFFFF" strokeWidth={3} />
-                      <Text style={styles.badgeLabel}>Así sí</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.guidanceCardTitle}>De frente y cuerpo entero</Text>
-                  <Text style={styles.guidanceCardSubtitle}>Luz suave y ropa al cuerpo</Text>
-                </View>
+            {/* Motivo específico del rechazo, tono de sugerencia */}
+            {qualityCheck.status === 'rejected' && qualityCheck.issue && (
+              <View style={styles.rejectedReasonBox}>
+                <Text style={styles.rejectedReasonText}>
+                  {getPhotoQualityIssueMessage(qualityCheck.issue)}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
 
-                {/* Así no */}
-                <View style={styles.guidanceCard}>
-                  <View style={styles.guidanceImageWrapper}>
-                    <Image
-                      source={{ uri: GUIDE_PHOTOS.asiNo.url }}
-                      accessibilityLabel="Así no"
-                      style={styles.guidanceImage}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.noBadge}>
-                      <X size={10} color="#FFFFFF" strokeWidth={3} />
-                      <Text style={styles.badgeLabel}>Así no</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.guidanceCardTitle}>En espejo o cortada</Text>
-                  <Text style={styles.guidanceCardSubtitle}>Celular tapando o contraluz</Text>
+        {/* Synthesized Visual Guidance inside the Card */}
+        <View id="synthesized-body-guidance" style={styles.guidanceSection}>
+          <View style={styles.guidanceHeader}>
+            <Text style={styles.guidanceLabel}>
+              RECOMENDACIONES PARA TU FOTO:
+            </Text>
+            <TouchableOpacity
+              onPress={() => setIsGuideModalOpen(true)}
+              activeOpacity={0.7}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Text style={styles.guidanceDetailsLink}>Ver más detalles</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.guidanceGrid}>
+            {/* Así sí */}
+            <View style={styles.guidanceCard}>
+              <View style={styles.guidanceImageWrapper}>
+                <Image
+                  source={GUIDE_PHOTOS.asiSi.source}
+                  accessibilityLabel="Así sí"
+                  style={styles.guidanceImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.yesBadge}>
+                  <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                  <Text style={styles.badgeLabel}>Así sí</Text>
                 </View>
               </View>
+              <Text style={styles.guidanceCardTitle}>De frente y cuerpo entero</Text>
+              <Text style={styles.guidanceCardSubtitle}>Luz suave y ropa al cuerpo</Text>
             </View>
-          </>
-        )}
+
+            {/* Así no */}
+            <View style={styles.guidanceCard}>
+              <View style={styles.guidanceImageWrapper}>
+                <Image
+                  source={GUIDE_PHOTOS.asiNo.source}
+                  accessibilityLabel="Así no"
+                  style={styles.guidanceImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.noBadge}>
+                  <X size={10} color="#FFFFFF" strokeWidth={3} />
+                  <Text style={styles.badgeLabel}>Así no</Text>
+                </View>
+              </View>
+              <Text style={styles.guidanceCardTitle}>En espejo o cortada</Text>
+              <Text style={styles.guidanceCardSubtitle}>Celular tapando o contraluz</Text>
+            </View>
+          </View>
+        </View>
       </View>
 
       {cameraError && (
@@ -466,7 +408,7 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
       <View style={styles.footerCTA}>
         <TouchableOpacity
           id="btn-generate-vton"
-          onPress={onGenerate}
+          onPress={handleGeneratePress}
           disabled={!referencePhoto || !canContinue}
           activeOpacity={0.88}
           style={[
@@ -493,11 +435,15 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
         isOpen={isGuideModalOpen}
         onClose={() => setIsGuideModalOpen(false)}
       />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    width: '100%',
+    flex: 1,
+  },
   container: {
     width: '100%',
     maxWidth: 448,
@@ -506,7 +452,7 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 32,
     flexDirection: 'column',
-    minHeight: 'calc(100vh - 60px)' as any,
+    flexGrow: 1,
   },
   indicatorContainer: {
     marginBottom: 12,
@@ -781,65 +727,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     lineHeight: 12,
   },
-  cameraContainer: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  videoWrapper: {
-    position: 'relative',
-    width: '100%',
-    aspectRatio: 3 / 4,
-    maxHeight: 340,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: '#000000',
-    marginBottom: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cameraOvalGuide: {
-    position: 'absolute',
-    width: 176,
-    height: 256,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 100,
-  },
-  cameraButtonsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    width: '100%',
-  },
-  cancelCameraButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: '#FAF7F2',
-    borderWidth: 1,
-    borderColor: '#DCD2C4',
-  },
-  cancelCameraText: {
-    color: '#75695E',
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  shutterButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    backgroundColor: '#7A4655',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  shutterButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 14,
-  },
   uploadedFeedbackBox: {
     marginTop: 14,
     width: '100%',
@@ -996,4 +883,3 @@ const styles = StyleSheet.create({
     color: 'rgba(117, 105, 94, 0.8)',
   },
 });
-

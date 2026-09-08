@@ -1,6 +1,7 @@
 import React, { ErrorInfo, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Platform, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AlertCircle, RefreshCw } from 'lucide-react-native';
 
 interface Props {
   children: ReactNode;
@@ -35,13 +36,17 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   private handleReset = () => {
     this.setState({ hasError: false, error: null });
-    window.location.reload();
+    // window.location.reload() solo existe en web. En nativo no hay "recargar la
+    // página": limpiar el estado del boundary (arriba) ya deja reintentar el render.
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      window.location.reload();
+    }
   };
 
   public render() {
     if (this.state.hasError) {
       return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
           <View style={styles.card} accessibilityRole="alert">
             <View style={styles.iconCircle}>
               <AlertCircle size={24} color="#7A4655" />
@@ -63,7 +68,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
               <Text style={styles.resetButtonText}>Recargar aplicación</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </SafeAreaView>
       );
     }
 
@@ -73,7 +78,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: '100vh' as any,
+    flex: 1,
     backgroundColor: '#F6F1EA',
     alignItems: 'center',
     justifyContent: 'center',

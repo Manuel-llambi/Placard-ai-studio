@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { X, Check, Sun, Maximize2, ShieldCheck, User } from 'lucide-react';
+import { X, Check, Sun, Maximize2, ShieldCheck, User } from 'lucide-react-native';
 import { GUIDE_PHOTOS } from '../data/samples';
+import { useEscapeToClose } from '../utils/useEscapeToClose';
 
 interface BodyPhotoGuideModalProps {
   isOpen: boolean;
@@ -20,14 +21,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  useEscapeToClose(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -84,7 +78,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
                 </View>
                 <View style={styles.imageWrapper}>
                   <Image
-                    source={{ uri: GUIDE_PHOTOS.asiSi.url }}
+                    source={GUIDE_PHOTOS.asiSi.source}
                     accessibilityLabel={GUIDE_PHOTOS.asiSi.title}
                     style={styles.cardImage}
                     resizeMode="cover"
@@ -108,7 +102,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
                 </View>
                 <View style={styles.imageWrapper}>
                   <Image
-                    source={{ uri: GUIDE_PHOTOS.asiNo.url }}
+                    source={GUIDE_PHOTOS.asiNo.source}
                     accessibilityLabel={GUIDE_PHOTOS.asiNo.title}
                     style={styles.cardImage}
                     resizeMode="cover"
@@ -186,7 +180,7 @@ export const BodyPhotoGuideModal: React.FC<BodyPhotoGuideModalProps> = ({
 
 const styles = StyleSheet.create({
   backdrop: {
-    position: 'fixed' as any,
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
@@ -204,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#DCD2C4',
-    maxHeight: '92vh' as any,
+    maxHeight: '92%',
     overflow: 'hidden',
   },
   header: {

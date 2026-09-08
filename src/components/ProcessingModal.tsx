@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Sparkles, FastForward } from 'lucide-react';
+import Svg, { Path, Line } from 'react-native-svg';
+import { Sparkles, FastForward } from 'lucide-react-native';
 import { Garment } from '../types';
 
 interface ProcessingModalProps {
@@ -50,25 +51,25 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
         {/* Brand Loader: Animated Textile Hanger Icon */}
         <View style={styles.iconContainer}>
           <View style={styles.hangerWrapper}>
-            <svg
-              width="72"
-              height="72"
+            <Svg
+              width={72}
+              height={72}
               viewBox="0 0 64 64"
               fill="none"
               stroke="#7A4655"
-              strokeWidth="2.2"
+              strokeWidth={2.2}
               strokeLinecap="round"
               strokeLinejoin="round"
             >
               {/* Hook */}
-              <path d="M32 14c0-4.418 3.582-8 8-8s8 3.582 8 8c0 3.5-2.2 6.5-5.5 7.5L32 24" />
+              <Path d="M32 14c0-4.418 3.582-8 8-8s8 3.582 8 8c0 3.5-2.2 6.5-5.5 7.5L32 24" />
               {/* Triangle hanger frame */}
-              <path d="M32 24L8 42h48L32 24z" />
+              <Path d="M32 24L8 42h48L32 24z" />
               {/* Horizontal bottom bar */}
-              <line x1="8" y1="42" x2="56" y2="42" />
+              <Line x1={8} y1={42} x2={56} y2={42} />
               {/* Lower garment bar notch */}
-              <line x1="20" y1="46" x2="44" y2="46" strokeWidth="1.5" strokeOpacity="0.5" />
-            </svg>
+              <Line x1={20} y1={46} x2={44} y2={46} strokeWidth={1.5} strokeOpacity={0.5} />
+            </Svg>
           </View>
           <View style={styles.shadowPill} />
         </View>
@@ -123,7 +124,7 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'fixed' as any,
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,

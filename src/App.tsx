@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Header } from './components/Header';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { Step1Garment } from './components/Step1Garment';
@@ -109,7 +110,7 @@ export default function App() {
   };
 
   return (
-    <View style={styles.outerContainer}>
+    <SafeAreaView style={styles.outerContainer} edges={['top', 'bottom']}>
       {/* Phone container wrapper for responsive mobile presentation */}
       <View style={styles.phoneContainer}>
         {/* Header */}
@@ -192,13 +193,13 @@ export default function App() {
           </View>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   outerContainer: {
-    minHeight: '100vh' as any,
+    flex: 1,
     backgroundColor: '#F6F1EA',
     alignItems: 'center',
     width: '100%',
@@ -206,7 +207,7 @@ const styles = StyleSheet.create({
   phoneContainer: {
     width: '100%',
     maxWidth: 448,
-    minHeight: '100vh' as any,
+    flex: 1,
     backgroundColor: '#F6F1EA',
     flexDirection: 'column',
     position: 'relative',
