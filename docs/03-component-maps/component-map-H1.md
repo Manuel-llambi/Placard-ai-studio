@@ -6,7 +6,7 @@ Como usuaria que necesita decidir qué ponerse, quiero entrar a la app y llegar 
 **Criterios de aceptación funcionales:**
 - Al ingresar a la app no se solicita login, registro, ni ningún dato personal (nombre, email, teléfono).
 - Desde la pantalla de entrada, la usuaria puede avanzar directo hacia la carga de su foto propia.
-- No existe ningún paso previo obligatorio (encuestas, permisos genéricos, onboarding de producto) antes de llegar a la carga de fotos.
+- No existe ningún paso previo obligatorio (encuestas, permisos genéricos, onboarding de producto) antes de llegar a la carga de fotos. Solo existe un pantalla donde explica brevemente como funciona la app
 
 **Criterios de experiencia:**
 - La pantalla de bienvenida comunica en una frase simple qué hace la app y qué se le va a pedir a continuación (dos fotos), sin tono de "app de productividad" ni de urgencia.

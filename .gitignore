@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local tooling / agent config
+.claude/
+.atl/
+ui-ux-pro-max/

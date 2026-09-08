@@ -12,9 +12,18 @@ import {
   Check,
   Sparkles,
   X,
+  RotateCcw,
+  Trash2,
 } from 'lucide-react';
 import { Garment } from '../types';
 import { GarmentPhotoGuideModal } from './GarmentPhotoGuideModal';
+import {
+  PhotoQualityIssue,
+  getPhotoQualityIssueMessage,
+  simulatePhotoQualityCheck,
+} from '../utils/simulatePhotoQuality';
+
+type QualityStatus = 'idle' | 'checking' | 'approved' | 'rejected';
 
 interface Step1GarmentProps {
   selectedGarment: Garment | null;
@@ -36,6 +45,34 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
   const [isLiveCameraActive, setIsLiveCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
+  // Foto propia capturada/subida en ESTA pantalla, se haya aprobado o no.
+  // Se mantiene visible durante un rechazo/reintento para no perder el contexto.
+  const [capturedGarment, setCapturedGarment] = useState<Garment | null>(
+    () => (selectedGarment?.isCustomUpload ? selectedGarment : null)
+  );
+  // Qué dice el chequeo de calidad simulado sobre esa foto ahora mismo.
+  const [qualityCheck, setQualityCheck] = useState<{ status: QualityStatus; issue?: PhotoQualityIssue }>(
+    () => (selectedGarment?.isCustomUpload ? { status: 'approved' } : { status: 'idle' })
+  );
+
+  // Corre la validación de calidad simulada sobre una foto recién capturada/subida.
+  // Solo si aprueba se eleva la foto al estado del padre (App.tsx) vía onCustomUpload;
+  // si la rechaza, la prenda capturada se mantiene visible localmente para poder reintentar
+  // sin perderla, pero el padre sigue con lo que tenía antes.
+  const runQualityCheck = async (garment: Garment, forceIssue?: PhotoQualityIssue) => {
+    setCapturedGarment(garment);
+    setQualityCheck({ status: 'checking' });
+
+    const result = await simulatePhotoQualityCheck(forceIssue);
+
+    if (result.approved) {
+      setQualityCheck({ status: 'approved' });
+      onCustomUpload(garment);
+    } else {
+      setQualityCheck({ status: 'rejected', issue: result.issue });
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -52,7 +89,12 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
           description: 'Foto tomada por el usuario con recorte automático por IA.',
           isCustomUpload: true,
         };
-        onCustomUpload(customGarment);
+        // Atajo de prueba: si el nombre del archivo incluye "error", forzamos el
+        // rechazo para poder ver el estado de calidad insuficiente sin depender del azar.
+        const forceIssue: PhotoQualityIssue | undefined = /error/i.test(file.name)
+          ? 'muy_oscura'
+          : undefined;
+        runQualityCheck(customGarment, forceIssue);
       };
       reader.readAsDataURL(file);
     }
@@ -106,11 +148,24 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
           description: 'Foto tomada en vivo con guía de alineación.',
           isCustomUpload: true,
         };
-        onCustomUpload(customGarment);
         stopLiveCamera();
+        runQualityCheck(customGarment);
       }
     }
   };
+
+  // Descarta la foto propia capturada en esta pantalla y vuelve a mostrar los botones
+  // de captura. Solo limpia el estado local: si la foto ya había sido aprobada y elevada
+  // al padre (App.tsx), la prenda seleccionada ahí no cambia hasta que se suba/capture otra.
+  const handleDeleteCapturedGarment = () => {
+    setCapturedGarment(null);
+    setQualityCheck({ status: 'idle' });
+  };
+
+  // Si no se tocó "tomar foto"/"subir de galería" en esta pantalla, no bloqueamos nada
+  // (deja intacto el click-through de demo con la prenda de catálogo precargada).
+  // Apenas hay una foto propia en juego, hay que esperar a que quede aprobada.
+  const canContinue = !capturedGarment || qualityCheck.status === 'approved';
 
   return (
     <View style={styles.container}>
@@ -271,6 +326,77 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
               </TouchableOpacity>
             </View>
 
+            {/* Uploaded / Selected Custom Garment Feedback */}
+            {capturedGarment && (
+              <View style={styles.uploadedFeedbackBox}>
+                <View style={styles.uploadedRow}>
+                  <Image
+                    source={{ uri: capturedGarment.imageUrl }}
+                    accessibilityLabel="Prenda personalizada"
+                    style={styles.uploadedThumb}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.uploadedMeta}>
+                    {qualityCheck.status === 'checking' && (
+                      <Text style={styles.checkingText}>Analizando calidad de la foto…</Text>
+                    )}
+
+                    {qualityCheck.status === 'approved' && (
+                      <>
+                        <View style={styles.detectedRow}>
+                          <View style={styles.greenDot} />
+                          <Text style={styles.detectedText}>Prenda propia capturada ✓</Text>
+                        </View>
+                        <Text style={styles.uploadedName} numberOfLines={1}>
+                          {capturedGarment.name}
+                        </Text>
+                        <Text style={styles.uploadedDesc}>
+                          Recorte por IA listo para calce
+                        </Text>
+                      </>
+                    )}
+
+                    {qualityCheck.status === 'rejected' && (
+                      <View style={styles.detectedRow}>
+                        <View style={styles.issueDot} />
+                        <Text style={styles.issueText}>Detectamos un problema con la foto</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View style={styles.uploadedActions}>
+                    <TouchableOpacity
+                      onPress={() => cameraInputRef.current?.click()}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Reintentar foto de la prenda"
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={styles.iconActionButton}
+                    >
+                      <RotateCcw size={16} color="#75695E" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleDeleteCapturedGarment}
+                      activeOpacity={0.7}
+                      accessibilityLabel="Eliminar foto de la prenda"
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={styles.iconActionButton}
+                    >
+                      <Trash2 size={16} color="#A85A46" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Motivo específico del rechazo, tono de sugerencia */}
+                {qualityCheck.status === 'rejected' && qualityCheck.issue && (
+                  <View style={styles.rejectedReasonBox}>
+                    <Text style={styles.rejectedReasonText}>
+                      {getPhotoQualityIssueMessage(qualityCheck.issue)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+
             {cameraError && (
               <Text style={styles.errorText} accessibilityLiveRegion="polite">
                 {cameraError}
@@ -330,57 +456,6 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
                 </View>
               </View>
             </View>
-
-            {/* Uploaded / Selected Custom Garment Feedback */}
-            {selectedGarment?.isCustomUpload && (
-              <View style={styles.uploadedFeedbackBox}>
-                <View style={styles.uploadedRow}>
-                  <Image
-                    source={{ uri: selectedGarment.imageUrl }}
-                    accessibilityLabel="Prenda personalizada"
-                    style={styles.uploadedThumb}
-                    resizeMode="cover"
-                  />
-                  <View style={styles.uploadedMeta}>
-                    <View style={styles.detectedRow}>
-                      <View style={styles.greenDot} />
-                      <Text style={styles.detectedText}>Prenda propia capturada ✓</Text>
-                    </View>
-                    <Text style={styles.uploadedName} numberOfLines={1}>
-                      {selectedGarment.name}
-                    </Text>
-                    <Text style={styles.uploadedDesc}>
-                      Recorte por IA listo para calce
-                    </Text>
-                  </View>
-
-                  <View style={styles.uploadedActions}>
-                    <TouchableOpacity
-                      onPress={() => setIsGuideModalOpen(true)}
-                      activeOpacity={0.7}
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Text style={styles.guideLink}>Ver guía</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => cameraInputRef.current?.click()}
-                      activeOpacity={0.7}
-                      accessibilityLabel="Repetir foto de la prenda"
-                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                    >
-                      <Text style={styles.repeatLink}>Repetir</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Validation checklist */}
-                <View style={styles.validationRow}>
-                  <Text style={styles.validationItem}>✓ Silueta detectada</Text>
-                  <Text style={styles.validationItem}>✓ Caída natural</Text>
-                  <Text style={styles.validationItem}>✓ Fondo adaptable</Text>
-                </View>
-              </View>
-            )}
           </>
         )}
       </View>
@@ -390,22 +465,22 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
         <TouchableOpacity
           id="btn-continue-to-reference"
           onPress={onContinue}
-          disabled={!selectedGarment}
+          disabled={!selectedGarment || !canContinue}
           activeOpacity={0.88}
           style={[
             styles.continueButton,
-            selectedGarment ? styles.continueButtonEnabled : styles.continueButtonDisabled,
+            selectedGarment && canContinue ? styles.continueButtonEnabled : styles.continueButtonDisabled,
           ]}
         >
           <Text
             style={[
               styles.continueButtonText,
-              selectedGarment ? styles.continueTextEnabled : styles.continueTextDisabled,
+              selectedGarment && canContinue ? styles.continueTextEnabled : styles.continueTextDisabled,
             ]}
           >
             Continuar a mi foto
           </Text>
-          {selectedGarment && <Sparkles size={16} color="#FAF7F2" />}
+          {selectedGarment && canContinue && <Sparkles size={16} color="#FAF7F2" />}
         </TouchableOpacity>
       </View>
 
@@ -715,6 +790,23 @@ const styles = StyleSheet.create({
     color: '#8C9B7E',
     letterSpacing: 0.6,
   },
+  checkingText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#75695E',
+  },
+  issueDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#A85A46',
+  },
+  issueText: {
+    fontSize: 10.5,
+    fontWeight: '700',
+    color: '#A85A46',
+    letterSpacing: 0.6,
+  },
   uploadedName: {
     fontSize: 13,
     fontWeight: '600',
@@ -726,8 +818,19 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   uploadedActions: {
-    alignItems: 'flex-end',
-    gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconActionButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#DCD2C4',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   guideLink: {
     fontSize: 11,
@@ -740,19 +843,16 @@ const styles = StyleSheet.create({
     color: '#75695E',
     textDecorationLine: 'underline',
   },
-  validationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
+  rejectedReasonBox: {
     marginTop: 8,
+    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(220, 210, 196, 0.4)',
   },
-  validationItem: {
-    fontSize: 11,
-    color: '#8C9B7E',
-    fontWeight: '500',
+  rejectedReasonText: {
+    fontSize: 11.5,
+    color: '#A85A46',
+    lineHeight: 16,
   },
   cameraContainer: {
     width: '100%',
