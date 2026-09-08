@@ -10,15 +10,14 @@ import { GuestWardrobePreview } from './components/GuestWardrobePreview';
 import { SignUpModal } from './components/SignUpModal';
 import { OnboardingStep, Garment, ReferencePhoto, VtonResult } from './types';
 import {
-  SAMPLE_GARMENTS,
   DEMO_REFERENCE_PHOTO,
   SAMPLE_VTON_RESULTS,
 } from './data/samples';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
-  const [selectedGarment, setSelectedGarment] = useState<Garment | null>(SAMPLE_GARMENTS[0]);
-  const [referencePhoto, setReferencePhoto] = useState<ReferencePhoto | null>(DEMO_REFERENCE_PHOTO);
+  const [selectedGarment, setSelectedGarment] = useState<Garment | null>(null);
+  const [referencePhoto, setReferencePhoto] = useState<ReferencePhoto | null>(null);
   const [activeResult, setActiveResult] = useState<VtonResult>(SAMPLE_VTON_RESULTS['blazer-arena']);
   const [isRegisteredUser, setIsRegisteredUser] = useState(false);
   const [userAuthMethod, setUserAuthMethod] = useState<'Apple' | 'Google' | 'Email' | null>(null);
@@ -43,8 +42,8 @@ export default function App() {
   };
 
   const handleReset = () => {
-    setSelectedGarment(SAMPLE_GARMENTS[0]);
-    setReferencePhoto(DEMO_REFERENCE_PHOTO);
+    setSelectedGarment(null);
+    setReferencePhoto(null);
     setActiveResult(SAMPLE_VTON_RESULTS['blazer-arena']);
     setCurrentStep('welcome');
     showToast('Flujo reiniciado');

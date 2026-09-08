@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { Garment, ReferencePhoto } from '../types';
-import { DEMO_REFERENCE_PHOTO, GUIDE_PHOTOS } from '../data/samples';
+import { GUIDE_PHOTOS } from '../data/samples';
 import { BodyPhotoGuideModal } from './BodyPhotoGuideModal';
 import {
   PhotoQualityIssue,
@@ -57,13 +57,6 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   const [qualityCheck, setQualityCheck] = useState<{ status: QualityStatus; issue?: PhotoQualityIssue }>(
     () => (referencePhoto && !referencePhoto.isDemo ? { status: 'approved' } : { status: 'idle' })
   );
-
-  // Auto-select demo photo if none selected initially, but allow full customization
-  useEffect(() => {
-    if (!referencePhoto) {
-      onSelectReferencePhoto(DEMO_REFERENCE_PHOTO);
-    }
-  }, [referencePhoto, onSelectReferencePhoto]);
 
   // Corre la validación de calidad simulada sobre una foto recién capturada/subida.
   // Solo si aprueba se eleva la foto al estado del padre (App.tsx) vía onSelectReferencePhoto;

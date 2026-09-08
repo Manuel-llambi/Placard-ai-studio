@@ -42,6 +42,7 @@ Fuente: `docs/PRD.md` — PRD "Placard Digital con VTON (MVP)", v2.0.
   - Antes de continuar al siguiente paso, el sistema evalúa si la foto tiene problemas evidentes de calidad (muy oscura, recortada, borrosa).
   - Si detecta un problema, informa el motivo de forma específica y ofrece volver a intentar sin perder el contexto (no hay que reiniciar el flujo desde H1).
   - Si la foto pasa la validación, la usuaria avanza al paso de subir la foto de la prenda.
+  - El CTA "Continuar" permanece deshabilitado hasta que la usuaria cargue una foto (desde cámara o galería); se habilita recién cuando la foto queda cargada.
 - **Criterios de experiencia**:
   - El aviso de calidad insuficiente se siente como una sugerencia útil ("mejor probemos con otra"), no como un rechazo o error del sistema.
   - Mientras se evalúa la calidad hay un estado de carga breve y claro, sin sensación de que el sistema se colgó.
@@ -62,6 +63,7 @@ Fuente: `docs/PRD.md` — PRD "Placard Digital con VTON (MVP)", v2.0.
   - El sistema evalúa la foto de la prenda con el mismo criterio de calidad que la foto propia (muy oscura, recortada, borrosa) antes de generar el resultado.
   - Si detecta un problema, lo informa y ofrece volver a intentar sin perder la foto propia ya cargada.
   - Si la foto pasa la validación, el sistema pasa a generar el resultado del VTON.
+  - El CTA "Continuar" permanece deshabilitado hasta que la usuaria cargue una foto de la prenda (desde cámara o galería); se habilita recién cuando la foto queda cargada.
 - **Criterios de experiencia**:
   - Mismo tono tranquilo que en H3 para el aviso de calidad insuficiente.
   - Queda claro en pantalla que la foto propia ya cargada se mantiene — la usuaria no debe temer tener que repetir ese paso.
