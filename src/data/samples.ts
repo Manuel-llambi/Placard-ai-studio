@@ -31,14 +31,20 @@ export const DEMO_REFERENCE_PHOTO: ReferencePhoto = {
   isDemo: true,
 };
 
+// `source` usa require() (resuelto por Metro en build time) en vez de una URL de
+// string tipo "/assets/...": esa ruta absoluta la servía el dev server de Vite
+// desde `public/`, algo que no existe en el runtime nativo de Expo. Con require(),
+// Metro empaqueta la imagen y funciona igual en Expo Go, en un build nativo y en web.
 export const GUIDE_PHOTOS = {
   asiSi: {
-    url: '/assets/guide-photos/asi-si-cuerpo-entero.jpg',
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    source: require('../../public/assets/guide-photos/asi-si-cuerpo-entero.jpg'),
     title: 'Así sí',
     description: 'Cuerpo entero de pies a cabeza, luz pareja y ropa entallada.',
   },
   asiNo: {
-    url: '/assets/guide-photos/asi-no-selfie-espejo.jpg',
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    source: require('../../public/assets/guide-photos/asi-no-selfie-espejo.jpg'),
     title: 'Así no',
     description: 'Selfie de espejo con el flash tapando la cara y foto cortada.',
   },

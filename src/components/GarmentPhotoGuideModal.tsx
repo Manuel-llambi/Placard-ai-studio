@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,28 +8,21 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { Camera, X, Check, ShieldCheck } from 'lucide-react';
+import { Camera, X, Check, ShieldCheck } from 'lucide-react-native';
+import { useEscapeToClose } from '../utils/useEscapeToClose';
 
 interface GarmentPhotoGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTakePhoto?: () => void;
   onUploadGallery?: () => void;
-  onStartLiveCamera?: () => void;
 }
 
 export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  useEscapeToClose(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -204,7 +197,7 @@ export const GarmentPhotoGuideModal: React.FC<GarmentPhotoGuideModalProps> = ({
 
 const styles = StyleSheet.create({
   backdrop: {
-    position: 'fixed' as any,
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
@@ -222,7 +215,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#DCD2C4',
-    maxHeight: '92vh' as any,
+    maxHeight: '92%',
     overflow: 'hidden',
   },
   header: {

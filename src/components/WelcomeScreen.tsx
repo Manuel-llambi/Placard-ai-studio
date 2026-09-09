@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { ArrowRight, ShieldCheck, Plus, Sparkles } from 'lucide-react';
+import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
+import { ArrowRight, ShieldCheck, Plus, Sparkles } from 'lucide-react-native';
 import { SAMPLE_GARMENTS, DEMO_REFERENCE_PHOTO, SAMPLE_VTON_RESULTS } from '../data/samples';
 
 interface WelcomeScreenProps {
@@ -16,7 +16,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onStart,
 }) => {
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.scrollView}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Main Title & Value Prop */}
       <View style={styles.header}>
         <Text style={styles.title}>
@@ -155,11 +159,15 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <ArrowRight size={16} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    width: '100%',
+    flex: 1,
+  },
   container: {
     width: '100%',
     maxWidth: 448,
@@ -168,7 +176,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 32,
     flexDirection: 'column',
-    minHeight: 'calc(100vh - 60px)' as any,
+    flexGrow: 1,
   },
   header: {
     alignItems: 'center',
