@@ -1,17 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Svg, { Path, Line } from 'react-native-svg';
-import { Sparkles, FastForward } from 'lucide-react-native';
-import { Garment } from '../types';
+import { Sparkles } from 'lucide-react-native';
+import { Garment, ReferencePhoto, VtonResult } from '../types';
+import { generateVirtualTryOn } from '../services/virtualTryOnService';
 
 interface ProcessingModalProps {
   garment: Garment;
-  onComplete: () => void;
+  referencePhoto: ReferencePhoto;
+  onSuccess: (result: VtonResult) => void;
+  onError: (message: string) => void;
 }
+
+// Techo del progreso "visual" mientras esperamos la respuesta real del back.
+// Nunca llega a 100% por su cuenta: eso solo pasa cuando generateVirtualTryOn
+// efectivamente resuelve, así esta pantalla no miente sobre cuánto falta.
+const PROGRESS_CEILING = 90;
 
 export const ProcessingModal: React.FC<ProcessingModalProps> = ({
   garment,
-  onComplete,
+  referencePhoto,
+  onSuccess,
+  onError,
 }) => {
   const [progress, setProgress] = useState(12);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -23,16 +33,19 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
     'Aplicando luz natural y acabado editorial...',
   ];
 
+  // Esta pantalla representa el loading real del llamado al back: dispara
+  // generateVirtualTryOn al montar y solo avanza de paso cuando esa promesa
+  // resuelve. Si falla, corta acá y le pasa el mensaje de error a App.tsx
+  // (que lo muestra en el snackbar y vuelve al Paso 2); no hay forma de
+  // "saltear" un llamado real, así que no hay botón de skip.
   useEffect(() => {
+    let cancelled = false;
+
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => onComplete(), 400);
-          return 100;
-        }
-        const increment = prev < 60 ? 12 : prev < 85 ? 8 : 5;
-        const next = Math.min(prev + increment, 100);
+        if (prev >= PROGRESS_CEILING) return prev;
+        const increment = prev < 60 ? 12 : 8;
+        const next = Math.min(prev + increment, PROGRESS_CEILING);
 
         if (next > 75) setCurrentStepIndex(3);
         else if (next > 50) setCurrentStepIndex(2);
@@ -42,8 +55,32 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
       });
     }, 450);
 
-    return () => clearInterval(interval);
-  }, [onComplete]);
+    generateVirtualTryOn({ garmentPhoto: garment, referencePhoto })
+      .then((result) => {
+        if (cancelled) return;
+        clearInterval(interval);
+        setCurrentStepIndex(3);
+        setProgress(100);
+        setTimeout(() => {
+          if (!cancelled) onSuccess(result);
+        }, 400);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        clearInterval(interval);
+        onError(
+          error instanceof Error
+            ? error.message
+            : 'No pudimos generar tu look. Probá de nuevo en unos segundos.'
+        );
+      });
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [garment, referencePhoto]);
 
   return (
     <View style={styles.overlay}>
@@ -104,19 +141,6 @@ export const ProcessingModal: React.FC<ProcessingModalProps> = ({
           <Text style={styles.progressLabel}>Calce orgánico</Text>
           <Text style={styles.progressValue}>{progress}%</Text>
         </View>
-
-        {/* Skip button */}
-        <TouchableOpacity
-          onPress={onComplete}
-          activeOpacity={0.7}
-          style={styles.skipButton}
-          accessibilityLabel="Acelerar y ver el resultado ahora"
-          accessibilityRole="button"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <FastForward size={14} color="#75695E" />
-          <Text style={styles.skipText}>Acelerar resultado</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -222,19 +246,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#2B2420',
-  },
-  skipButton: {
-    marginTop: 32,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-  },
-  skipText: {
-    fontSize: 12,
-    color: '#75695E',
-    textDecorationLine: 'underline',
   },
 });
 

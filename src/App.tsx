@@ -24,10 +24,12 @@ export default function App() {
   const [userAuthMethod, setUserAuthMethod] = useState<'Apple' | 'Google' | 'Email' | null>(null);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastVariant, setToastVariant] = useState<'default' | 'error'>('default');
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, variant: 'default' | 'error' = 'default') => {
+    setToastVariant(variant);
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), variant === 'error' ? 4500 : 3000);
   };
 
   const handleBack = () => {
@@ -59,29 +61,20 @@ export default function App() {
     setCurrentStep('processing');
   };
 
-  const handleProcessingComplete = () => {
-    // Determine result based on garment
-    if (selectedGarment && SAMPLE_VTON_RESULTS[selectedGarment.id]) {
-      setActiveResult(SAMPLE_VTON_RESULTS[selectedGarment.id]);
-    } else if (selectedGarment) {
-      // Generated dynamic result for custom uploads
-      const customResult: VtonResult = {
-        id: `vton-custom-${Date.now()}`,
-        garment: selectedGarment,
-        referencePhoto: referencePhoto || DEMO_REFERENCE_PHOTO,
-        resultImageUrl: selectedGarment.imageUrl,
-        lookTitle: `Look Diario · ${selectedGarment.name}`,
-        lookNumber: '#01',
-        stylingDescription: 'Calce personalizado adaptado a tu silueta con caída natural',
-        fitPercentage: 97,
-        size: 'Talle S',
-        date: 'Hoy',
-        isFavorite: false,
-        occasion: 'Casual',
-      };
-      setActiveResult(customResult);
-    }
+  // ProcessingModal llama esto cuando generateVirtualTryOn (el llamado real
+  // al back) resuelve OK: usamos directamente el resultado que devolvió el
+  // servicio (ya no el mockeado de SAMPLE_VTON_RESULTS) y avanzamos.
+  const handleGenerationSuccess = (result: VtonResult) => {
+    setActiveResult(result);
     setCurrentStep('step3_result');
+  };
+
+  // ProcessingModal llama esto si generateVirtualTryOn falla: mostramos el
+  // mensaje real del back en el snackbar de error y volvemos al Paso 2 en
+  // vez de seguir a step3_result.
+  const handleGenerationError = (message: string) => {
+    showToast(message, 'error');
+    setCurrentStep('step2_reference');
   };
 
   const handleAuthSuccess = (provider: 'Apple' | 'Google' | 'Email') => {
@@ -166,11 +159,14 @@ export default function App() {
           )}
         </View>
 
-        {/* Processing Modal during generation */}
-        {currentStep === 'processing' && selectedGarment && (
+        {/* Processing Modal during generation: dispara y espera el llamado
+            real a generateVirtualTryOn (ver ProcessingModal.tsx) */}
+        {currentStep === 'processing' && selectedGarment && referencePhoto && (
           <ProcessingModal
             garment={selectedGarment}
-            onComplete={handleProcessingComplete}
+            referencePhoto={referencePhoto}
+            onSuccess={handleGenerationSuccess}
+            onError={handleGenerationError}
           />
         )}
 
@@ -184,9 +180,9 @@ export default function App() {
         {/* Toast notifications */}
         {toastMessage && (
           <View
-            style={styles.toast}
+            style={[styles.toast, toastVariant === 'error' && styles.toastError]}
             accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
+            accessibilityLiveRegion="assertive"
           >
             <Text style={styles.toastText}>{toastMessage}</Text>
           </View>
@@ -221,17 +217,24 @@ const styles = StyleSheet.create({
   toast: {
     position: 'absolute',
     bottom: 24,
-    alignSelf: 'center',
+    left: 20,
+    right: 20,
+    maxWidth: 408,
+    marginHorizontal: 'auto',
     zIndex: 50,
     backgroundColor: '#2B2420',
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 9999,
+    paddingVertical: 10,
+    borderRadius: 14,
+  },
+  toastError: {
+    backgroundColor: '#A85A46',
   },
   toastText: {
     color: '#F6F1EA',
     fontSize: 12.5,
     fontWeight: '500',
+    textAlign: 'center',
   },
 });
 

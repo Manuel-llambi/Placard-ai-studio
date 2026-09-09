@@ -21,7 +21,6 @@ import {
 import { Garment, ReferencePhoto } from '../types';
 import { GUIDE_PHOTOS } from '../data/samples';
 import { BodyPhotoGuideModal } from './BodyPhotoGuideModal';
-import { generateVirtualTryOn } from '../services/virtualTryOnService';
 import { pickImageFromCamera, pickImageFromGallery } from '../utils/pickImage';
 import {
   PhotoQualityIssue,
@@ -141,19 +140,12 @@ export const Step2Reference: React.FC<Step2ReferenceProps> = ({
   // Apenas hay una foto propia en juego, hay que esperar a que quede aprobada.
   const canContinue = !capturedReferencePhoto || qualityCheck.status === 'approved';
 
-  // Dispara la generación del VTON contra el backend real (aún no implementado,
-  // ver src/services/virtualTryOnService.ts) y, en paralelo, sigue con el flujo
-  // mockeado actual (onGenerate) para no romper la demo mientras no haya endpoint.
+  // Pasa a la pantalla de "processing", que es la que dispara y espera el
+  // llamado real al backend (ver ProcessingModal.tsx / generateVirtualTryOn
+  // en App.tsx) y decide desde ahí si sigue a step3_result o vuelve acá con
+  // un error.
   const handleGeneratePress = () => {
     if (!referencePhoto) return;
-
-    generateVirtualTryOn({
-      garmentPhoto: selectedGarment,
-      referencePhoto,
-    }).catch((error) => {
-      console.warn('[virtualTryOnService] generateVirtualTryOn no implementada todavía:', error);
-    });
-
     onGenerate();
   };
 

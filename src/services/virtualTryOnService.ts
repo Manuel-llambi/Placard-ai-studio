@@ -51,8 +51,26 @@ export async function generateVirtualTryOn(
   // No seteamos el header Content-Type a mano: en React Native, cuando el body
   // es un FormData, el runtime nativo arma el boundary del multipart solo. Si lo
   // fijamos nosotros sin boundary, el back puede no poder parsear las partes.
-  // Los errores (red, 4xx/5xx del back, etc.) se propagan tal cual al que llame
-  // a esta función, que ya los maneja (ver handleGeneratePress en Step2Reference.tsx).
-  const { data } = await apiClient.post<VtonResult>('/vton/', formData);
-  return data;
+  try {
+    const { data }: any  = await apiClient.post<VtonResult>('/vton/', formData);
+    console.log("data", data)
+    if(data.ok){
+      return data;
+    } else {
+      throw new Error(data.error?.body?.message || 'No pudimos generar tu look. Probá de nuevo en unos segundos.');
+    }
+    
+  } catch (err) {
+    // El back informa el motivo del fallo en el campo "error" del body de la
+    // respuesta (4xx/5xx). Normalizamos todo a un Error con un mensaje apto
+    // para mostrarle a la usuaria (ver handleGeneratePress en Step2Reference.tsx,
+    // que lo muestra en un snackbar y corta el flujo).
+    if (axios.isAxiosError(err)) {
+      const backendMessage = (err.response?.data as { error?: string } | undefined)?.error;
+      throw new Error(
+        backendMessage || 'No pudimos generar tu look. Probá de nuevo en unos segundos.'
+      );
+    }
+    throw err;
+  }
 }
