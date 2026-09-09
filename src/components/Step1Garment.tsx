@@ -39,8 +39,8 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
   onContinue,
   onCustomUpload,
 }) => {
-  const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isGuideModalOpen, setIsGuideModalOpen] = useState(false);
 
   // Foto propia capturada/subida en ESTA pantalla, se haya aprobado o no.
   // Se mantiene visible durante un rechazo/reintento para no perder el contexto.
@@ -177,18 +177,6 @@ export const Step1Garment: React.FC<Step1GarmentProps> = ({
         <Text style={styles.cardSubtitle}>
           Nuestra IA recortará el fondo automáticamente conservando texturas y caída.
         </Text>
-
-        {/* Direct Trigger to Open Guide Modal */}
-        <TouchableOpacity
-          id="btn-open-garment-tips"
-          onPress={() => setIsGuideModalOpen(true)}
-          activeOpacity={0.7}
-          style={styles.guideTriggerButton}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Sparkles size={14} color="#7A4655" />
-          <Text style={styles.guideTriggerText}>¿Cómo sacar una buena foto? Ver indicaciones</Text>
-        </TouchableOpacity>
 
         {/* Main Action Buttons */}
         <View style={styles.actionButtonsStack}>
@@ -439,11 +427,11 @@ const styles = StyleSheet.create({
   },
   headline: {
     fontFamily: 'sans-serif',
-    fontSize: 26,
-    fontWeight: '600',
+    fontSize: 21,
+    fontWeight: '700',
     color: '#2B2420',
-    letterSpacing: -0.4,
-    lineHeight: 32,
+    letterSpacing: -0.3,
+    lineHeight: 26,
   },
   description: {
     fontSize: 14,
@@ -471,7 +459,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#2B2420',
   },
   cardSubtitle: {
@@ -482,18 +470,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     maxWidth: 290,
     lineHeight: 18,
-  },
-  guideTriggerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 16,
-  },
-  guideTriggerText: {
-    fontSize: 12,
-    color: '#7A4655',
-    fontWeight: '600',
-    textDecorationLine: 'underline',
   },
   actionButtonsStack: {
     width: '100%',

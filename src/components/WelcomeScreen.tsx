@@ -1,16 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, StyleSheet } from 'react-native';
-import { ArrowRight, ShieldCheck, Plus, Sparkles } from 'lucide-react-native';
-import { SAMPLE_GARMENTS, DEMO_REFERENCE_PHOTO, SAMPLE_VTON_RESULTS } from '../data/samples';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { ArrowRight, ShieldCheck } from 'lucide-react-native';
 
 interface WelcomeScreenProps {
   onStart: () => void;
 }
-
-// Reference assets for the "how it works" concept diagram below —
-// same mock dataset the rest of the flow uses, not new imagery.
-const conceptGarment = SAMPLE_GARMENTS[0];
-const conceptResult = SAMPLE_VTON_RESULTS['blazer-arena'];
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onStart,
@@ -29,57 +23,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         <Text style={styles.subtitle}>
           Probate combinaciones con tus prendas reales sin desordenar tu placard y sin necesidad de cargar 100 prendas para empezar.
         </Text>
-      </View>
-
-      {/* Hero Visual Card: a literal "garment + your photo = your look" diagram,
-          so the AI concept reads instantly instead of relying on a single mood photo. */}
-      <View style={styles.heroCard}>
-        <Text style={styles.heroLabel}>PRENDA + FOTO = TU LOOK</Text>
-
-        <View style={styles.conceptRow}>
-          <View style={styles.conceptItem}>
-            <Image
-              source={{ uri: conceptGarment.imageUrl }}
-              accessibilityLabel="Foto de la prenda que subís"
-              style={styles.conceptImage}
-              resizeMode="cover"
-            />
-            <Text style={styles.conceptCaption}>Tu prenda</Text>
-          </View>
-
-          <View style={styles.operatorWrap}>
-            <Plus size={16} color="#A79C8E" strokeWidth={2.5} />
-          </View>
-
-          <View style={styles.conceptItem}>
-            <Image
-              source={{ uri: DEMO_REFERENCE_PHOTO.imageUrl }}
-              accessibilityLabel="Foto de referencia de cuerpo entero"
-              style={styles.conceptImage}
-              resizeMode="cover"
-            />
-            <Text style={styles.conceptCaption}>Tu foto</Text>
-          </View>
-
-          <View style={styles.operatorWrap}>
-            <Text style={styles.operatorEquals}>=</Text>
-          </View>
-
-          <View style={styles.conceptItem}>
-            <View style={styles.resultImageWrap}>
-              <Image
-                source={{ uri: conceptResult.resultImageUrl }}
-                accessibilityLabel="Resultado generado combinando ambas fotos"
-                style={styles.conceptImage}
-                resizeMode="cover"
-              />
-              <View style={styles.sparkleBadge}>
-                <Sparkles size={10} color="#FFFFFF" />
-              </View>
-            </View>
-            <Text style={[styles.conceptCaption, styles.conceptCaptionAccent]}>Tu look</Text>
-          </View>
-        </View>
       </View>
 
       {/* "Lo que vas a hacer a continuación" Steps Section */}
@@ -199,77 +142,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 21,
     maxWidth: 340,
-  },
-  heroCard: {
-    borderRadius: 20,
-    backgroundColor: '#ECE4DA',
-    borderWidth: 1,
-    borderColor: 'rgba(220, 210, 196, 0.6)',
-    marginBottom: 20,
-    paddingVertical: 18,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-  },
-  heroLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-    color: '#75695E',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  conceptRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  conceptItem: {
-    alignItems: 'center',
-    width: 78,
-  },
-  conceptImage: {
-    width: 78,
-    height: 78,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(220, 210, 196, 0.8)',
-  },
-  operatorWrap: {
-    height: 78,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  operatorEquals: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#A79C8E',
-  },
-  resultImageWrap: {
-    position: 'relative',
-  },
-  sparkleBadge: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#7A4655',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#ECE4DA',
-  },
-  conceptCaption: {
-    fontSize: 10.5,
-    fontWeight: '500',
-    color: '#75695E',
-    marginTop: 6,
-  },
-  conceptCaptionAccent: {
-    color: '#7A4655',
-    fontWeight: '700',
   },
   stepsCard: {
     backgroundColor: 'rgba(236, 228, 218, 0.7)',

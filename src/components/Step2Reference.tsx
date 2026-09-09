@@ -520,11 +520,11 @@ const styles = StyleSheet.create({
   },
   headline: {
     fontFamily: 'sans-serif',
-    fontSize: 26,
-    fontWeight: '600',
+    fontSize: 21,
+    fontWeight: '700',
     color: '#2B2420',
-    letterSpacing: -0.4,
-    lineHeight: 32,
+    letterSpacing: -0.3,
+    lineHeight: 26,
   },
   description: {
     fontSize: 13.5,
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 17,
-    fontWeight: '600',
+    fontWeight: '500',
     color: '#2B2420',
   },
   cardSubtitle: {

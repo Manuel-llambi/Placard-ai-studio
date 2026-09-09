@@ -50,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
       </View>
 
       <View style={styles.centerSlot}>
-        <Text style={styles.title}>Placard</Text>
+        <Text style={styles.title}>Oufy</Text>
         {subtitle && (
           <Text style={styles.subtitle}>{subtitle}</Text>
         )}
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontFamily: 'sans-serif',
+    fontFamily: 'serif',
     fontSize: 22,
     fontWeight: '500',
     color: '#2B2420',
