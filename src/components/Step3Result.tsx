@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {
   Share2,
   CheckCircle,
   Pencil,
+  ImageOff,
 } from 'lucide-react-native';
 import { VtonResult } from '../types';
 import { CompareModal } from './CompareModal';
@@ -38,6 +39,16 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
   const [shareSuccess, setShareSuccess] = useState(false);
   const [lookTitle, setLookTitle] = useState('Look #01');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+  // Si la imagen de resultado no carga (ej: el back devolvió una URL de un
+  // host que la bloquea, o dejó de existir), mostramos un estado explícito
+  // en vez de dejar el hero card en blanco sin explicación.
+  const [heroImageFailed, setHeroImageFailed] = useState(false);
+
+  // Si cambia el resultado (otro look), largamos de nuevo desde "sin error"
+  // en vez de arrastrar el fallo de una imagen anterior.
+  useEffect(() => {
+    setHeroImageFailed(false);
+  }, [result.resultImageUrl]);
 
   const handleShare = async () => {
     try {
@@ -68,12 +79,29 @@ export const Step3Result: React.FC<Step3ResultProps> = ({
 
       {/* Hero Card with Virtual Try-On Image */}
       <View id="vton-hero-card" style={styles.heroCard}>
-        <Image
-          source={{ uri: result.resultImageUrl }}
-          accessibilityLabel={result.lookTitle}
-          style={styles.heroImage}
-          resizeMode="cover"
-        />
+        {heroImageFailed ? (
+          <View style={styles.heroImageFallback} accessibilityLiveRegion="polite">
+            <ImageOff size={28} color="#75695E" strokeWidth={1.6} />
+            <Text style={styles.heroImageFallbackText}>
+              No pudimos cargar la imagen de tu look. Probá de nuevo en unos minutos.
+            </Text>
+          </View>
+        ) : (
+          <Image
+            source={{ uri: result.resultImageUrl }}
+            accessibilityLabel={result.lookTitle}
+            style={styles.heroImage}
+            resizeMode="cover"
+            onError={(e) => {
+              console.warn(
+                '[Step3Result] No se pudo cargar resultImageUrl:',
+                result.resultImageUrl,
+                e.nativeEvent?.error
+              );
+              setHeroImageFailed(true);
+            }}
+          />
+        )}
 
         {/* Floating Scrim for readability */}
         <View style={styles.scrimOverlay} />
@@ -335,6 +363,20 @@ const styles = StyleSheet.create({
   heroImage: {
     width: '100%',
     height: '100%',
+  },
+  heroImageFallback: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    gap: 10,
+  },
+  heroImageFallbackText: {
+    fontSize: 13,
+    color: '#75695E',
+    textAlign: 'center',
+    lineHeight: 18,
   },
   scrimOverlay: {
     position: 'absolute',
