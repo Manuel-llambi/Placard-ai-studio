@@ -52,14 +52,38 @@ export async function generateVirtualTryOn(
   // es un FormData, el runtime nativo arma el boundary del multipart solo. Si lo
   // fijamos nosotros sin boundary, el back puede no poder parsear las partes.
   try {
-    const { data }: any  = await apiClient.post<VtonResult>('/vton/', formData);
-    console.log("data", data)
-    if(data.ok){
-      return data;
-    } else {
+    const { data }: any = await apiClient.post('/vton/', formData);
+
+    if (!data.ok) {
       throw new Error(data.error?.body?.message || 'No pudimos generar tu look. Probá de nuevo en unos segundos.');
     }
-    
+
+    // El back solo devuelve { ok, image } (image es la URL de la imagen ya
+    // generada). El resto de los campos de VtonResult (título, descripción,
+    // etc.) todavía no vienen del back, así que los completamos acá con lo
+    // que sí sabemos (prenda y foto de referencia elegidas) y placeholders
+    // razonables — mismo criterio que usaba App.tsx para el resultado mockeado
+    // de una prenda propia.
+    const resultImageUrl = data.image;
+    if (!resultImageUrl) {
+      throw new Error('El back no devolvió la imagen generada. Probá de nuevo en unos segundos.');
+    }
+
+    const result: VtonResult = {
+      id: `vton-${Date.now()}`,
+      garment: params.garmentPhoto,
+      referencePhoto: params.referencePhoto,
+      resultImageUrl,
+      lookTitle: `Look Diario · ${params.garmentPhoto.name}`,
+      lookNumber: '#01',
+      stylingDescription: 'Calce personalizado adaptado a tu silueta con caída natural',
+      fitPercentage: 97,
+      size: 'Talle S',
+      date: 'Hoy',
+      isFavorite: false,
+      occasion: 'Casual',
+    };
+    return result;
   } catch (err) {
     // El back informa el motivo del fallo en el campo "error" del body de la
     // respuesta (4xx/5xx). Normalizamos todo a un Error con un mensaje apto
